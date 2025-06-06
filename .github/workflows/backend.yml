@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ./backend/dockerfiles/Dockerfile.7
-          context: ./backend/
+          context: ./backend
           push: true
           tags: davidalej/tm-backend-ci:${{ github.run_id }}
           target: test
