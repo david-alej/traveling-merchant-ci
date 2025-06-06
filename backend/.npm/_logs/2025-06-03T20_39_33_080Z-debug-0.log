@@ -1,0 +1,19 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@10.9.2
+2 info using node@v22.16.0
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/usr/src/app/.npmrc
+5 silly config load:file:/root/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm run seed
+8 verbose argv "run" "seed"
+9 verbose logfile logs-max:10 dir:/usr/src/app/.npm/_logs/2025-06-03T20_39_33_080Z-
+10 verbose logfile /usr/src/app/.npm/_logs/2025-06-03T20_39_33_080Z-debug-0.log
+11 silly logfile start cleaning logs, removing 1 files
+12 silly logfile done cleaning log files
+13 verbose cwd /usr/src/app
+14 verbose os Linux 6.8.0-60-generic
+15 verbose node v22.16.0
+16 verbose npm  v10.9.2
+17 verbose exit 0
+18 info ok

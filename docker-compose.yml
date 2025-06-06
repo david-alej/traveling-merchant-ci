@@ -1,0 +1,97 @@
+services:
+  frontend-vite:
+    image: tm-frontend-vite
+    build:
+      context: ./frontend/
+      dockerfile: ./dockerfiles/Dockerfile.3
+    init: true
+    volumes:
+      - ./frontend/dockerfiles/vite.config.js:/usr/src/app/vite.config.js
+    networks:
+      - frontend
+    ports:
+      - 5173:5173
+  frontend-nginx:
+    image: tm-frontend-nginx
+    build:
+      context: ./frontend/
+      dockerfile: ./dockerfiles/Dockerfile.5
+    init: true
+    networks:
+      - frontend
+    ports:
+      - 8081:8080
+    restart: unless-stopped
+  backend:
+    image: tm-backend
+    build:
+      context: ./backend/
+      dockerfile: ./dockerfiles/Dockerfile.7
+    init: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      my-redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgres://prod_user:prod_password@db:5432/prod_db
+      REDIS_HOST: my-redis
+    networks:
+      - frontend
+      - backend
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+  migrate:
+    image: tm-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "npm run seed:migrate:reset"]
+    environment:
+      DATABASE_URL: postgres://prod_user:prod_password@db:5432/prod_db
+      NODE_ENV: production
+    networks:
+      - backend
+    restart: "no"
+  db:
+    image: postgres:15.1-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: prod_user
+      POSTGRES_PASSWORD: prod_password
+      POSTGRES_DB: prod_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prod_user -d prod_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - backend
+    expose:
+      - "5432"
+  my-redis:
+    image: redis:alpine3.16
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    expose:
+      - "6379"
+    restart: unless-stopped
+volumes:
+  pgdata:
+  redis-data:
+networks:
+  frontend:
+  backend:

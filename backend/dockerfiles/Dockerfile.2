@@ -1,0 +1,12 @@
+# Pin specific version
+# Use slim for reduced image size
+FROM node:22.16.0-bullseye-slim
+
+# Specify working directory other than /
+WORKDIR /usr/src/app
+
+COPY . .
+
+RUN npm install
+
+CMD [ "node", "index.js" ]

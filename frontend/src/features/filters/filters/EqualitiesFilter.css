@@ -1,0 +1,44 @@
+/* Equalities Filter CSS */
+.equalities-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.4rem;
+  height: 100%;
+}
+
+.custom-equality {
+  border-radius: 1rem;
+  background-color: #fff;
+  border: 1px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0 0.625rem;
+}
+
+.extrema-container {
+  display: inline-flex;
+}
+
+.extrema {
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  padding-left: 0.1rem;
+  min-width: 4.5rem;
+  max-width: 6rem;
+}
+
+.equalities-filter-clear-icon {
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+}
+
+.less-than-equal-icon {
+  display: flex;
+  align-items: center;
+  padding: 0 0.75rem;
+}

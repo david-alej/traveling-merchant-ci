@@ -1,0 +1,117 @@
+services:
+  frontend-vite:
+    image: tm-frontend-vite
+    build:
+      context: ./frontend/
+      dockerfile: ./dockerfiles/Dockerfile.3
+    init: true
+    volumes:
+      - type: bind
+        source: ./frontend/
+        target: /usr/src/app/
+      - type: volume
+        target: /usr/src/app/node_modules
+      - type: bind
+        source: ./frontend/dockerfiles/vite.config.js
+        target: /usr/src/app/vite.config.js
+    networks:
+      - frontend
+    ports:
+      - 5173:5173
+  frontend-nginx:
+    image: tm-frontend-nginx
+    build:
+      context: ./frontend/
+      dockerfile: ./dockerfiles/Dockerfile.5
+    init: true
+    networks:
+      - frontend
+    ports:
+      - 8081:8080
+    restart: unless-stopped
+  backend:
+    image: tm-backend
+    build:
+      context: ./backend/
+      dockerfile: ./dockerfiles/Dockerfile.9
+      target: dev
+    init: true
+    volumes:
+      - type: bind
+        source: ./backend/
+        target: /usr/src/app/
+      - type: volume
+        target: /usr/src/app/node_modules
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      my-redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      DEV_DATABASE_URL: postgres://dev_user:dev_password@db:5432/dev_db
+      REDIS_HOST: my-redis
+      NODE_ENV: development
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ping || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - frontend
+      - backend
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+  migrate:
+    image: tm-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "npm run seed:migrate:reset"]
+    environment:
+      DEV_DATABASE_URL: postgres://dev_user:dev_password@db:5432/dev_db
+      NODE_ENV: development
+    networks:
+      - backend
+    restart: "no"
+  db:
+    image: postgres:15.1-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: dev_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev_user -d dev_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - backend
+    expose:
+      - "5432"
+  my-redis:
+    image: redis:alpine3.16
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    expose:
+      - "6379"
+    restart: unless-stopped
+volumes:
+  pgdata:
+  redis-data:
+networks:
+  frontend:
+  backend:

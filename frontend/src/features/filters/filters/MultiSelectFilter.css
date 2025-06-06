@@ -1,0 +1,48 @@
+/* Inherits CSS styles from DropDown component bc they have most of the same className tags */
+/* MultiSelect Filter */
+.multi-select-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.4rem;
+  height: 100%;
+}
+
+.selected-options {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0;
+}
+
+.tag {
+  background-color: var(--faded-color);
+  color: #000;
+  border-radius: 0.3rem;
+  margin: 0.09rem 0.3rem 0.09rem 0;
+  padding: 0.2rem 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.remove-tag {
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.clear {
+  position: absolute;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0;
+  color: #000;
+  top: 0.6rem;
+  left: auto;
+  right: 1rem;
+}
+
+.tag:hover {
+  background-color: var(--secondary-color);
+}

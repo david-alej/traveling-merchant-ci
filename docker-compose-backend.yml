@@ -1,0 +1,72 @@
+services:
+  backend:
+    image: tm-backend
+    build:
+      context: ./backend/
+      dockerfile: ./dockerfiles/Dockerfile.7
+    init: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      my-redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgres://ci_user:ci_password@db:5432/ci_db
+      REDIS_HOST: my-redis
+    networks:
+      - backend
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+  migrate:
+    image: tm-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "npm run seed:migrate:reset"]
+    environment:
+      DATABASE_URL: postgres://ci_user:ci_password@db:5432/ci_db
+      NODE_ENV: production
+    networks:
+      - backend
+    restart: "no"
+  db:
+    image: postgres:15.1-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ci_user
+      POSTGRES_PASSWORD: ci_password
+      POSTGRES_DB: ci_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ci_user -d ci_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - backend
+    expose:
+      - "5432"
+  my-redis:
+    image: redis:alpine3.16
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    expose:
+      - "6379"
+    restart: unless-stopped
+volumes:
+  pgdata:
+  redis-data:
+networks:
+  backend:

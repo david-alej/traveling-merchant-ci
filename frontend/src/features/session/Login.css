@@ -1,0 +1,59 @@
+#login-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--faded-color);
+  width: 25%;
+  height: 50%;
+  border-radius: 1rem;
+}
+
+#login {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#login h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20%;
+  font-size: 2rem;
+}
+
+#login #error-message {
+  height: 10%;
+  padding: 1rem;
+}
+
+#login form {
+  height: 80%;
+}
+
+#login-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60%;
+}
+
+.login-input {
+  display: inline-flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.login-input label {
+  padding-right: 2rem;
+}
+
+#login-submit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40%;
+}

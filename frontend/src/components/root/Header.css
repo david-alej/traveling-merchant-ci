@@ -1,0 +1,48 @@
+/* Header CSS */
+header {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  grid-row: 1 / 2;
+  grid-column: 1 / 10;
+  font-size: 2.5rem;
+  padding: 1rem;
+}
+
+header.accessed {
+  grid-column: 2 / 10;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+header.accessed p {
+  font-size: 18px;
+  margin: 10px;
+}
+
+#left-header {
+  display: flex;
+  width: 50%;
+}
+
+#right-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  height: 100%;
+}
+
+.vertical-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 0.15rem;
+  background-color: black;
+  height: 50%;
+  margin-left: 0.15rem;
+  margin-right: 0.15rem;
+}

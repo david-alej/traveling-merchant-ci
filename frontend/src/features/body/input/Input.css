@@ -1,0 +1,124 @@
+/* Input */
+.input {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 35%;
+  height: 100%;
+}
+
+input,
+textarea {
+  border-radius: 1rem;
+  padding: 0.3rem;
+  border: 0.15rem solid #000;
+}
+
+/* PhoneNumber Input */
+input.phone-number {
+  min-width: 7rem;
+  width: 50%;
+}
+
+/* String Input */
+.input textarea.string {
+  max-width: 100%;
+}
+
+#hidden-span {
+  visibility: hidden;
+  white-space: pre;
+  font-size: 1rem;
+  position: absolute;
+  left: 0;
+}
+
+/* Foreign Input */
+.object-header,
+.array-header {
+  display: flex;
+  flex-direction: row;
+}
+
+input.object,
+input.array {
+  width: 100%;
+  border: none;
+}
+
+input.object:focus,
+input.array:focus {
+  outline: none;
+}
+
+input.array.disabled {
+  color: var(--faded-color);
+}
+
+/* Date Input */
+.input-switch {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.input-switch-button {
+  border: 0.1rem solid var(--faded-color);
+  margin: 0.3rem;
+}
+
+/* General Date Input */
+.value.search-date {
+  display: inline-flex;
+  justify-content: center;
+}
+
+.value.search-date .select-text {
+  min-width: 7.5rem;
+  width: 20%;
+  margin-right: 2.5%;
+}
+
+.value.search-date .select-value {
+  min-width: 10rem;
+  width: 30%;
+}
+
+/* Pop Up */
+.add-element {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.add-element input {
+  max-width: 4rem;
+}
+
+.add-element input.ware-obj {
+  max-width: none;
+  width: 85%;
+}
+
+.add-element .element-part {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+}
+
+.add-element .element-part.ware {
+  flex: 7;
+}
+
+.element-part p {
+  padding-right: 1rem;
+}
+
+.add-element-button {
+  border: 0.1rem solid #000;
+  margin: 0.2rem;
+}

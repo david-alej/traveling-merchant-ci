@@ -1,0 +1,5 @@
+node_modules
+dockerfiles
+coverage
+.npm
+public/videos

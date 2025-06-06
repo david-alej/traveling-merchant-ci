@@ -1,0 +1,11 @@
+# Overlay configuration to run tests
+services:
+  backend:
+    command:
+      - "npm"
+      - "run"
+      - "test"
+    environment:
+      TEST_DATABASE_URL: postgres://dev_user:dev_password@db:5432/dev_db
+      NODE_ENV: test
+  migrate: null

@@ -1,0 +1,49 @@
+services:
+  backend:
+    image: "${TESTING_IMAGE}"
+    init: true
+    depends_on:
+      db:
+        condition: service_healthy
+      my-redis:
+        condition: service_healthy
+    expose:
+      - "3000"
+  db:
+    image: postgres:15.1-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: test_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d test_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    expose:
+      - "5432"
+  my-redis:
+    image: redis:alpine3.16
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    expose:
+      - "6379"
+    restart: unless-stopped
+  sut: # System under test: waits until test image is ready to run test commands to make request to backend container.
+    image: "${TESTING_IMAGE}"
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      CI_BACKEND: backend
+    command: npm run ci-integration-test
+volumes:
+  pgdata:
+  redis-data:

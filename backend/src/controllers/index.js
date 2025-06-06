@@ -1,0 +1,17 @@
+module.exports = {
+  authorize: require("./authorize"),
+  errorHandlers: require("./errorHandlers"),
+  loginControllers: require("./login"),
+  logoutControllers: require("./logout"),
+  merchantControllers: require("./merchant"),
+  clientsControllers: require("./clients"),
+  validators: require("../util/validators"),
+  ordersControllers: require("./orders"),
+  orderswaresControllers: require("./orderswares"),
+  providersControllers: require("./providers"),
+  ticketsControllers: require("./tickets"),
+  transactionsControllers: require("./transactions"),
+  waresControllers: require("./wares"),
+  waresticketsControllers: require("./warestickets"),
+  worksControllers: require("./works"),
+}

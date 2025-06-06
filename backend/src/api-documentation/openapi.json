@@ -1,0 +1,3682 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Traveling Merchant",
+    "version": "1",
+    "description": "A back end application to keep track of transactions of a merchant buying product and selling product and keeping track of their inventory. All succesful operations start with \"Merchant: {merchantId}\" where merchantId is the id of the merchant that is logged in.",
+    "license": {
+      "name": "MIT",
+      "url": "https://spdx.org/licenses/MIT.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:{PORT}",
+      "variables": {},
+      "description": "The application's URL is randomized after every initialization through its port number represented in the URL as {PORT}."
+    }
+  ],
+  "paths": {
+    "/api-docs": {
+      "summary": "View waggers api documentation",
+      "description": "This path is used to view the api documentation using swagger.",
+      "get": {
+        "summary": "Get api documentaion.",
+        "description": "This path uses the GET operation to view api documentation.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "The only response": {
+                    "value": "This is not the acutal response. This directs to view the api documenation page."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Api Documentation"
+        ]
+      }
+    },
+    "/login": {
+      "summary": "log into traveling merchant",
+      "description": "This path is used to log into the application.",
+      "get": {
+        "summary": "Get login page.",
+        "description": "This route is empty right now but its future purpose is to load the login page.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "The only response": {
+                    "value": "\"\""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Login"
+        ]
+      },
+      "post": {
+        "summary": "Log into the application.",
+        "description": "This path uses the POST operation to log into the application. On succesful operation a csrf token is returned to use into request headers for csrf protected routes.",
+        "operationId": "",
+        "requestBody": {
+          "description": "Client using app needs merchant credentials to login.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/merchantCredentials"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Client using app is authenticated": {
+                    "value": "{\"message\": \"Merchant: 1 is now logged in.\", \"csrfToken\": \"13498123749831274892374\"}"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Input username does not exist": {
+                    "value": "Unauthorized."
+                  },
+                  "Username matches but Password is not correct.": {
+                    "value": "Unauthorized."
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TOO MANY REQUESTS",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Client tries to login with wrong username and/or password more times than 100 times per a day": {
+                    "value": "Merchant: 1 has made to many request to the original url, /login, next retry is after 86400 seconds."
+                  },
+                  "Client tries to login with wrong password more times than 10 times per 90 days on the same op address": {
+                    "value": "Merchant: 1 has made to many request to the original url, /login, next retry is after 3600 seconds."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Login"
+        ]
+      }
+    },
+    "/logout": {
+      "summary": "log out traveling merchant",
+      "description": "This path is used to log out the application.",
+      "get": {
+        "summary": "Get logout page.",
+        "description": "This route is empty right now but its future purpose is to load the logout page.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "The only response": {
+                    "value": "\"\""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Logout"
+        ]
+      },
+      "post": {
+        "summary": "Log out the application.",
+        "description": "This path uses the POST operation to log out the application.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Client using app is authenticated": {
+                    "value": "Merchant: 1 is now logged out."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Logout"
+        ]
+      }
+    },
+    "/merchant/{merchantId}": {
+      "summary": "Amend or view merchant",
+      "description": "This path is used update or get the information of the merchant.",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "merchantId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The merchant ID"
+        }
+      ],
+      "get": {
+        "summary": "Get merchant.",
+        "description": "This path uses get to get the information of the merchant.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Merchant found given merchant id ": {
+                    "value": "{\"id\": 1, \"username\": \"merchantUsername\",  \"createdAt\": \"2024-11-11T00:00:00.000Z\",  \"updatedAt\": \"2024-11-11T00:00:00.000Z\"}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Merchant not found given merchant id": {
+                    "value": "Merchant not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Merchant"
+        ]
+      },
+      "put": {
+        "summary": "Update merchant",
+        "description": "This path uses the PUT operation to update information of the merchant.",
+        "operationId": "",
+        "requestBody": {
+          "description": "Merchant credentials and new merchant credentials",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/merchantUpdates"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Merchant found given merchant id": {
+                    "value": "Merchant: 1 has updated either/both their username or password."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No new credentials where given": {
+                    "value": "Bad input request."
+                  },
+                  "New username is already taken by another merchant": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Merchant not found given merchant id": {
+                    "value": "Merchant not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Merchant"
+        ]
+      }
+    },
+    "/clients/{clientId}": {
+      "summary": "Request for a specific client's data",
+      "description": "This path used to perform CRUD operations on clients",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "clientId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The client ID"
+        }
+      ],
+      "get": {
+        "summary": "Get client",
+        "description": "This path uses the GET operation to get specific clients.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns client data with associated work, and tickets.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Client found given client id": {
+                    "value": "{\"id\":2,\"workId\":1,\"fullname\":\"James Moe\",\"address\":\"1823 Steele Street\",\"phoneNumber\":\"9566347775\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"tickets\":[{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0}],\"work\":{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Client not found given client id": {
+                    "value": "Client not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Clients"
+        ]
+      },
+      "put": {
+        "summary": "Update client",
+        "description": "This path uses PUT operation to update clients information.",
+        "requestBody": {
+          "description": "Client new information. phoneNumber must be written with parenthesis and dashes ((XXX)XXX-XXXX), just dashes (XXX-XXX-XXXX), or all together (XXXXXXXXXX).",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/clientsUpdates"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Updates one piece of information": {
+                    "value": "Merchant: 1 client with id = 1 was updated with given description = Dignissimos velut beatae fugit vitae.."
+                  },
+                  "Updates multiple pieces of client information": {
+                    "value": "Merchant: 1 client with id = 4 was updated with given workId = 9, fullname = id, and address = 2454 Alda Cliff."
+                  },
+                  "Updates all of an exisitng client information": {
+                    "value": "Merchant: 1 client with id = 2 was updated with given workId = 6, fullname = ab, address = 368 Dach Heights, phoneNumber = 4424541776, and description = Natus coruscus tutamen.."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Client not found given client id": {
+                    "value": "Client not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Clients"
+        ]
+      },
+      "delete": {
+        "summary": "Delete client",
+        "description": "This path uses the DELETE operation to delete clients from database.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Client is succesfully deleted": {
+                    "value": "Merchat: 1 has deleted a client with id = 3 and fullname = Lionel Barrows."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Client not found given client id": {
+                    "value": "Client not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Clients"
+        ]
+      }
+    },
+    "/clients/search": {
+      "summary": "Requests for a specific client's data",
+      "description": "This path is used to perform CRUD operations on clients",
+      "post": {
+        "summary": "Get client with request body",
+        "description": "This path uses the POST operation to get clients informations using request body inputs.",
+        "requestBody": {
+          "description": "Information of clients that can be searched for which is case insensative partial text search for string inputs, direct searches for number inputs, and month and/or year date searches for properties that end in \"At\".phoneNumber must be written with all numbers with no special characters and have less than 10 characters.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/clientsPostSearchDateString"
+                  },
+                  {
+                    "$ref": "#/components/schemas/clientsPostSearchDateObject"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns client data with associated work, and tickets.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "With no request body input, this returns all clients ordered by client id descending": {
+                    "value": "[{\"id\":4,\"workId\":3,\"fullname\":\"Madilyn Langosh\",\"address\":\"1571 Weekly Street\",\"phoneNumber\":\"2103424367\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"tickets\":[{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"returned\":155,\"paid\":13.27,\"owed\":0}],\"work\":{\"id\":3,\"name\":\"Lynch PLC\",\"address\":\"38 Lafayette St.\",\"phoneNumber\":\"9103623505\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"}},{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"tickets\":[{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52}],\"work\":{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"id\":2,\"workId\":1,\"fullname\":\"James Moe\",\"address\":\"1823 Steele Street\",\"phoneNumber\":\"9566347775\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"tickets\":[{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0}],\"work\":{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"id\":1,\"workId\":1,\"fullname\":\"Defective\",\"address\":\"0000 Street\",\"phoneNumber\":\"0000000000\",\"description\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"tickets\":[],\"work\":{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}]"
+                  },
+                  "With one request body input of createdAt equal to Fri Jan 10 2025 18:00:00 GMT-0600 (Central Standard Time), this returns all clients with a partial match": {
+                    "value": "[{\"id\":4,\"workId\":3,\"fullname\":\"Madilyn Langosh\",\"address\":\"1571 Weekly Street\",\"phoneNumber\":\"2103424367\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"tickets\":[{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"returned\":155,\"paid\":13.27,\"owed\":0}],\"work\":{\"id\":3,\"name\":\"Lynch PLC\",\"address\":\"38 Lafayette St.\",\"phoneNumber\":\"9103623505\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"}},{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"tickets\":[{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52}],\"work\":{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"id\":2,\"workId\":1,\"fullname\":\"James Moe\",\"address\":\"1823 Steele Street\",\"phoneNumber\":\"9566347775\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"tickets\":[{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0}],\"work\":{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"id\":1,\"workId\":1,\"fullname\":\"Defective\",\"address\":\"0000 Street\",\"phoneNumber\":\"0000000000\",\"description\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"tickets\":[],\"work\":{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}]"
+                  },
+                  "With more than one request body inputs ({\"workId\":2,\"fullname\":\"Pau\",\"address\":\"1454\",\"phoneNumber\":\"2543865553\",\"createdAt\":\"2025-01-11\",\"updatedAt\":\"2025-01-11\"}), this returns all clients that matches all the inputs": {
+                    "value": "[{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"tickets\":[{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52}],\"work\":{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}]"
+                  },
+                  "With date object in the request body ({createdAt: {year: 2024, month: 1, day:11 }}), this returns all clients that have the same year, month, and day": {
+                    "value": "[{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"tickets\":[{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52}],\"work\":{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Clients"
+        ]
+      }
+    },
+    "/clients": {
+      "summary": "Requests for clients data",
+      "description": "This path is used to perform CRUD operations on clients",
+      "post": {
+        "summary": "Post clients",
+        "description": "This path uses the POST operation to create client",
+        "requestBody": {
+          "description": "New client information. phoneNumber must be written with parenthesis and dashes ((XXX)XXX-XXXX), just dashes (XXX-XXX-XXXX), or all together (XXXXXXXXXX).",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/clientsPost"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "New client is successfully created": {
+                    "value": "Merchant: 1 client has been created."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Clients"
+        ]
+      }
+    },
+    "/orders/{orderId}": {
+      "summary": "Request for a specific order's data",
+      "description": "This path used to perform CRUD operations on orders",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "orderId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The order ID"
+        }
+      ],
+      "get": {
+        "summary": "Get order",
+        "description": "This path uses the GET operation to get specific orders.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns order data with associated provider, wares bought, and expenses.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Order found given order id": {
+                    "value": "{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"provider\":{\"id\":2,\"name\":\"Ebay\",\"address\":\"0000 online\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ordersWares\":[{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":5}},{\"id\":5,\"wareId\":5,\"orderId\":2,\"unitPrice\":10,\"amount\":10,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":8}}]}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Order not found given order id": {
+                    "value": "Order not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      },
+      "put": {
+        "summary": "Update order",
+        "description": "This path uses PUT operation to update orders information.",
+        "requestBody": {
+          "description": "Order new information. The date properties (has the property name end with \"At\") should be in the following formats 2024-12, 2024-12-02, or \"2024-12-02T04:32:42.456Z\".",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ordersUpdates"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Updates one piece of information": {
+                    "value": "Merchant: 1 order with id = 1 was updated with given shipment = 577."
+                  },
+                  "Updates multiple pieces of order information": {
+                    "value": "Merchant: 1 order with id = 4 was updated with given providerId = 9, cost = 733, and tax = 631."
+                  },
+                  "Updates all of an exisitng order information": {
+                    "value": "Merchant: 1 order with id = 2 was updated with given providerId = 9, cost = 556, tax = 745, shipment = 619, expectedAt = Mon Sep 08 2025 15:44:47 GMT-0500 (Central Daylight Time), and actualAt = Sun Oct 12 2025 12:34:40 GMT-0500 (Central Daylight Time)."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Order not found given order id": {
+                    "value": "Order not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      },
+      "delete": {
+        "summary": "Delete order",
+        "description": "This path uses the DELETE operation to delete orders from database.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Order is succesfully deleted": {
+                    "value": "Merchat: 1 has deleted a order with id = 3."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Order not found given order id": {
+                    "value": "Order not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/orders/search": {
+      "summary": "Requests for a specific order's data",
+      "description": "This path is used to perform CRUD operations on orders",
+      "post": {
+        "summary": "Get order with request body",
+        "description": "This path uses the POST operation to get orders informations using request body inputs.",
+        "requestBody": {
+          "description": "Information of orders that can be searched for which is case insensative partial text search for string inputs, direct searches for number inputs, and month and/or year date searches for properties that end in \"At\". The date properties (has the property name end with \"At\") should be in the following formats 2024-12, 2024-12-02, or \"2024-12-02T04:32:42.456Z\".",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ordersPostSearchDateString"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ordersPostSearchDateObject"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns order data with associated provider, wares bought, and expenses.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "With no request body input, this returns all orders ordered by order id descending": {
+                    "value": "[{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"provider\":{\"id\":2,\"name\":\"Ebay\",\"address\":\"0000 online\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ordersWares\":[{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":5}},{\"id\":5,\"wareId\":5,\"orderId\":2,\"unitPrice\":10,\"amount\":10,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":8}}]},{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"provider\":{\"id\":1,\"name\":\"Amazon\",\"address\":\"0000 online\",\"phoneNumber\":\"1632474734\",\"email\":\"derick_kertzmann@amazon.support.com\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ordersWares\":[{\"id\":1,\"wareId\":1,\"orderId\":1,\"unitPrice\":145,\"amount\":10,\"returned\":10,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":0}},{\"id\":2,\"wareId\":2,\"orderId\":1,\"unitPrice\":160,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"type\":\"perfume\",\"tags\":[\"women\",\"3-pc\"],\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":4}},{\"id\":3,\"wareId\":3,\"orderId\":1,\"unitPrice\":415,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"type\":\"bag\",\"tags\":[\"women\"],\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":1}}]}]"
+                  },
+                  "With one request body input of expectedAt equal to 2025-01-08, this returns all orders with a partial match": {
+                    "value": "[{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"provider\":{\"id\":2,\"name\":\"Ebay\",\"address\":\"0000 online\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ordersWares\":[{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":5}},{\"id\":5,\"wareId\":5,\"orderId\":2,\"unitPrice\":10,\"amount\":10,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":8}}]},{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"provider\":{\"id\":1,\"name\":\"Amazon\",\"address\":\"0000 online\",\"phoneNumber\":\"1632474734\",\"email\":\"derick_kertzmann@amazon.support.com\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ordersWares\":[{\"id\":1,\"wareId\":1,\"orderId\":1,\"unitPrice\":145,\"amount\":10,\"returned\":10,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":0}},{\"id\":2,\"wareId\":2,\"orderId\":1,\"unitPrice\":160,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"type\":\"perfume\",\"tags\":[\"women\",\"3-pc\"],\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":4}},{\"id\":3,\"wareId\":3,\"orderId\":1,\"unitPrice\":415,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"type\":\"bag\",\"tags\":[\"women\"],\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":1}}]}]"
+                  },
+                  "With more than one request body inputs ({\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-02T00:00:00.000Z\",\"actualAt\":\"2025-01-02T00:00:00.000Z\",\"createdAt\":\"2025-01-11\",\"updatedAt\":\"2025-01-11\"}), this returns all orders that matches all the inputs": {
+                    "value": "[{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"provider\":{\"id\":2,\"name\":\"Ebay\",\"address\":\"0000 online\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ordersWares\":[{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":5}},{\"id\":5,\"wareId\":5,\"orderId\":2,\"unitPrice\":10,\"amount\":10,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":8}}]}]"
+                  },
+                  "With a date object input in the request body ({\"updatedAt\":{\"year\":\"2025\",\"month\":\"1\",\"day\":\"11\"}}), this returns all orders with an updatedAt with the same year, month, and day": {
+                    "value": "[{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"provider\":{\"id\":2,\"name\":\"Ebay\",\"address\":\"0000 online\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ordersWares\":[{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":5}},{\"id\":5,\"wareId\":5,\"orderId\":2,\"unitPrice\":10,\"amount\":10,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":8}}]}]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/orders": {
+      "summary": "Requests for orders data",
+      "description": "This path is used to perform CRUD operations on orders",
+      "post": {
+        "summary": "Post orders",
+        "description": "This path uses the POST operation to create order",
+        "requestBody": {
+          "description": "New order information. The date properties (has the property name end with \"At\") should be in the following formats 2024-12, 2024-12-02, or \"2024-12-02T04:32:42.456Z\".",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ordersPost"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "New order is successfully created": {
+                    "value": "Merchant: 1 order has been created."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/orderswares/{orderId}/{wareId}": {
+      "summary": "Request for a specific ordersware's data",
+      "description": "This path used to perform CRUD operations on orderswares",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "orderId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The order ID"
+        },
+        {
+          "in": "path",
+          "name": "wareId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The ware ID"
+        }
+      ],
+      "get": {
+        "summary": "Get ordersware",
+        "description": "This path uses the GET operation to get specific orderswares.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns ordersware data with associated order, and ware.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "OrdersWare found given order id and ware id": {
+                    "value": "{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"order\":{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"},\"ware\":{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "OrdersWare not found given order id": {
+                    "value": "Order not found."
+                  },
+                  "OrdersWare not found given ware id": {
+                    "value": "OrdersWare not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OrdersWares"
+        ]
+      },
+      "put": {
+        "summary": "Update ordersware",
+        "description": "This path uses PUT operation to update orderswares information.",
+        "requestBody": {
+          "description": "OrdersWare new information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/orderswaresUpdates"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Updates one piece of information": {
+                    "value": "Merchant: 1 ordersware with order id = 1 and ware id = 7 was updated with given amount = 7."
+                  },
+                  "Updates multiple pieces of ordersware information": {
+                    "value": "Merchant: 1 ordersware with order id = 4 and ware id = 3 was updated with given unitPrice = 670, and amount = 2."
+                  },
+                  "Updates all of an exisitng ordersware information": {
+                    "value": "Merchant: 1 ordersware with order id = 2 and ware id = 1 was updated with given unitPrice = 694, amount = 7, and returned = 5."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "OrdersWare not found given order id": {
+                    "value": "Order not found."
+                  },
+                  "OrdersWare not found given ware id": {
+                    "value": "OrdersWare not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OrdersWares"
+        ]
+      },
+      "delete": {
+        "summary": "Delete ordersware",
+        "description": "This path uses the DELETE operation to delete orderswares from database.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "OrdersWare is succesfully deleted": {
+                    "value": "Merchat: 1 has deleted a ordersware with order id = 3 and ware id = 2."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "OrdersWare not found given order id": {
+                    "value": "Order not found."
+                  },
+                  "OrdersWare not found given ware id": {
+                    "value": "OrdersWare not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OrdersWares"
+        ]
+      }
+    },
+    "/orderswares/search": {
+      "summary": "Requests for a specific ordersware's data",
+      "description": "This path is used to perform CRUD operations on orderswares",
+      "post": {
+        "summary": "Get ordersware with request body",
+        "description": "This path uses the POST operation to get orderswares informations using request body inputs.",
+        "requestBody": {
+          "description": "Information of orderswares that can be searched for which is case insensative partial text search for string inputs, direct searches for number inputs, and month and/or year date searches for properties that end in \"At\".",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/orderswaresPostSearchDateString"
+                  },
+                  {
+                    "$ref": "#/components/schemas/orderswaresPostSearchDateObject"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns ordersware data with associated order, and ware.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "With no request body input, this returns all orderswares ordered by ordersware id descending": {
+                    "value": "[{\"id\":5,\"wareId\":5,\"orderId\":2,\"unitPrice\":10,\"amount\":10,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"order\":{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"},\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"order\":{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"},\"ware\":{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"id\":3,\"wareId\":3,\"orderId\":1,\"unitPrice\":415,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"order\":{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"type\":\"bag\",\"tags\":[\"women\"],\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"id\":2,\"wareId\":2,\"orderId\":1,\"unitPrice\":160,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"order\":{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ware\":{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"type\":\"perfume\",\"tags\":[\"women\",\"3-pc\"],\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"id\":1,\"wareId\":1,\"orderId\":1,\"unitPrice\":145,\"amount\":10,\"returned\":10,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"order\":{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}]"
+                  },
+                  "With one request body input of updatedAt equal to Mon Dec 09 2024 18:00:00 GMT-0600 (Central Standard Time), this returns all orderswares with a partial match": {
+                    "value": "[]"
+                  },
+                  "With more than one request body inputs ({\"orderId\":1,\"wareId\":1,\"unitPrice\":145,\"amount\":10,\"returned\":10,\"createdAt\":\"2025-01-02\",\"updatedAt\":\"2025-01-02\"}), this returns all orderswares that matches all the inputs": {
+                    "value": "{\"id\":1,\"wareId\":1,\"orderId\":1,\"unitPrice\":145,\"amount\":10,\"returned\":10,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"order\":{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"},\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}"
+                  },
+                  "With a date object input in the request body ({\"createdAt\":{\"year\":\"2024\"}}), this returns all orderswares that have createdAt with the same year": {
+                    "value": "[]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OrdersWares"
+        ]
+      }
+    },
+    "/orderswares": {
+      "summary": "Requests for orderswares data",
+      "description": "This path is used to perform CRUD operations on orderswares",
+      "post": {
+        "summary": "Post orderswares",
+        "description": "This path uses the POST operation to create ordersware",
+        "requestBody": {
+          "description": "New ordersware information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/orderswaresPost"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "New ordersware is successfully created": {
+                    "value": "Merchant: 1 ordersware has been created."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OrdersWares"
+        ]
+      }
+    },
+    "/orderswares/{orderId}": {
+      "summary": "Requests for orderswares data",
+      "description": "This path is used to perform Delete operation on orderswares",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "orderId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The order ID"
+        }
+      ],
+      "delete": {
+        "summary": "Post orderswares",
+        "description": "This path uses the Delete operation to delete all orderswares that belong to an order",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "OrdersWares are successfully deleted": {
+                    "value": "Merchant: 1 has deleted all orderswares with order id = 5."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Order not found given order id": {
+                    "value": "Order not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OrdersWares"
+        ]
+      }
+    },
+    "/providers/{providerId}": {
+      "summary": "Request for a specific provider's data",
+      "description": "This path used to perform CRUD operations on providers",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "providerId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The provider ID"
+        }
+      ],
+      "get": {
+        "summary": "Get provider",
+        "description": "This path uses the GET operation to get specific providers.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns provider data with associated orders.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Provider found given provider id": {
+                    "value": "{\"id\":2,\"name\":\"Ebay\",\"address\":\"0000 online\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"orders\":[{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Provider not found given provider id": {
+                    "value": "Provider not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Providers"
+        ]
+      },
+      "put": {
+        "summary": "Update provider",
+        "description": "This path uses PUT operation to update providers information.",
+        "requestBody": {
+          "description": "Provider new information. phoneNumber must be written with parenthesis and dashes ((XXX)XXX-XXXX), just dashes (XXX-XXX-XXXX), or all together (XXXXXXXXXX). email should follow the standard email format sush as \"fullname@example.com\".",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/providersUpdates"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Updates one piece of information": {
+                    "value": "Merchant: 1 provider with id = 1 was updated with given email = Jeanie.Farrell40@hotmail.com."
+                  },
+                  "Updates multiple pieces of provider information": {
+                    "value": "Merchant: 1 provider with id = 4 was updated with given name = tot, address = 3324 Oak Street, and phoneNumber = 0113672901."
+                  },
+                  "Updates all of an exisitng provider information": {
+                    "value": "Merchant: 1 provider with id = 2 was updated with given name = alveus, address = 27406 Pacocha Locks, phoneNumber = 565-773-8618, and email = Cecilia.Braun@hotmail.com."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Provider not found given provider id": {
+                    "value": "Provider not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Providers"
+        ]
+      },
+      "delete": {
+        "summary": "Delete provider",
+        "description": "This path uses the DELETE operation to delete providers from database.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Provider is succesfully deleted": {
+                    "value": "Merchat: 1 has deleted a provider with id = 3 and fullname = Lueilwitz Group."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Provider not found given provider id": {
+                    "value": "Provider not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Providers"
+        ]
+      }
+    },
+    "/providers/search": {
+      "summary": "Requests for a specific provider's data",
+      "description": "This path is used to perform CRUD operations on providers",
+      "post": {
+        "summary": "Get provider with request body",
+        "description": "This path uses the POST operation to get providers informations using request body inputs.",
+        "requestBody": {
+          "description": "Information of providers that can be searched for which is case insensative partial text search for string inputs, direct searches for number inputs, and month and/or year date searches for properties that end in \"At\".phoneNumber must be written with all numbers with no special characters and have less than 10 characters.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/providersPostSearchDateString"
+                  },
+                  {
+                    "$ref": "#/components/schemas/providersPostSearchDateObject"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns provider data with associated orders.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "With no request body input, this returns all providers ordered by provider id descending": {
+                    "value": "[{\"id\":2,\"name\":\"Ebay\",\"address\":\"0000 online\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"orders\":[{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"}]},{\"id\":1,\"name\":\"Amazon\",\"address\":\"0000 online\",\"phoneNumber\":\"1632474734\",\"email\":\"derick_kertzmann@amazon.support.com\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"orders\":[{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}]}]"
+                  },
+                  "With one request body input of address equal to 0 on, this returns all providers with a partial match": {
+                    "value": "[{\"id\":2,\"name\":\"Ebay\",\"address\":\"0000 online\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"orders\":[{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"}]},{\"id\":1,\"name\":\"Amazon\",\"address\":\"0000 online\",\"phoneNumber\":\"1632474734\",\"email\":\"derick_kertzmann@amazon.support.com\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"orders\":[{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}]}]"
+                  },
+                  "With more than one request body inputs ({\"name\":\"bay\",\"address\":\"0000\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-11\",\"updatedAt\":\"2025-01-11\"}), this returns all providers that matches all the inputs": {
+                    "value": "[{\"id\":2,\"name\":\"Ebay\",\"address\":\"0000 online\",\"phoneNumber\":\"5125869601\",\"email\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"orders\":[{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"}]}]"
+                  },
+                  "With a date object input in the request body ({\"updatedAt\":{\"year\":\"2025\",\"month\":\"2\"}), this returns all providers that have updatedAt with the same year and month": {
+                    "value": "[]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Providers"
+        ]
+      }
+    },
+    "/providers": {
+      "summary": "Requests for providers data",
+      "description": "This path is used to perform CRUD operations on providers",
+      "post": {
+        "summary": "Post providers",
+        "description": "This path uses the POST operation to create provider",
+        "requestBody": {
+          "description": "New provider information. phoneNumber must be written with parenthesis and dashes ((XXX)XXX-XXXX), just dashes (XXX-XXX-XXXX), or all together (XXXXXXXXXX). email should follow the standard email format sush as \"fullname@example.com\".",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/providersPost"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "New provider is successfully created": {
+                    "value": "Merchant: 1 provider has been created."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Providers"
+        ]
+      }
+    },
+    "/tickets/{ticketId}": {
+      "summary": "Request for a specific ticket's data",
+      "description": "This path used to perform CRUD operations on tickets",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "ticketId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The ticket ID"
+        }
+      ],
+      "get": {
+        "summary": "Get ticket",
+        "description": "This path uses the GET operation to get specific tickets.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns ticket data with associated transactions, client, wares sold, and wares.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ticket found given ticket id": {
+                    "value": "{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52,\"waresTickets\":[{\"ticketId\":2,\"wareId\":3,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"stock\":1,\"tags\":[\"women\"],\"type\":\"bag\",\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}],\"transactions\":[{\"id\":4,\"ticketId\":2,\"orderId\":null,\"payment\":200,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}],\"client\":{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"work\":{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ticket not found given ticket id": {
+                    "value": "Ticket not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tickets"
+        ]
+      },
+      "put": {
+        "summary": "Update ticket",
+        "description": "This path uses PUT operation to update tickets information.",
+        "requestBody": {
+          "description": "Ticket new information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ticketsUpdates"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Updates one piece of information": {
+                    "value": "Merchant: 1 ticket with id = 1 was updated with given description = Itaque thalassinus defungo.."
+                  },
+                  "Updates multiple pieces of ticket information": {
+                    "value": "Merchant: 1 ticket with id = 4 was updated with given clientId = 2, cost = 711, and paymentPlan = thermae."
+                  },
+                  "Updates all of an exisitng ticket information": {
+                    "value": "Merchant: 1 ticket with id = 2 was updated with given clientId = 2, cost = 549, paymentPlan = utroque, and description = Necessitatibus acerbitas deficio amplexus.."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ticket not found given ticket id": {
+                    "value": "Ticket not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tickets"
+        ]
+      },
+      "delete": {
+        "summary": "Delete ticket",
+        "description": "This path uses the DELETE operation to delete tickets from database.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ticket is succesfully deleted": {
+                    "value": "Merchat: 1 has deleted a ticket with id = 3."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ticket not found given ticket id": {
+                    "value": "Ticket not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/tickets/search": {
+      "summary": "Requests for a specific ticket's data",
+      "description": "This path is used to perform CRUD operations on tickets",
+      "post": {
+        "summary": "Get ticket with request body",
+        "description": "This path uses the POST operation to get tickets informations using request body inputs.",
+        "requestBody": {
+          "description": "Information of tickets that can be searched for which is case insensative partial text search for string inputs, direct searches for number inputs, and month and/or year date searches for properties that end in \"At\".",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ticketsPostSearchDateString"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ticketsPostSearchDateObject"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns ticket data with associated transactions, client, wares sold, and wares.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "With no request body input, this returns all tickets ordered by ticket id descending": {
+                    "value": "[{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"returned\":155,\"paid\":13.27,\"owed\":0,\"waresTickets\":[{\"ticketId\":3,\"wareId\":1,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"stock\":0,\"tags\":[\"women\",\"1-pc\"],\"type\":\"perfume\",\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}],\"transactions\":[{\"id\":7,\"ticketId\":3,\"orderId\":null,\"payment\":-155,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-17T00:00:00.000Z\",\"createdAt\":\"2025-01-17T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"},{\"id\":5,\"ticketId\":3,\"orderId\":null,\"payment\":168.27,\"paymentType\":\"cash\",\"paidAt\":\"2025-01-13T00:00:00.000Z\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"}],\"client\":{\"id\":4,\"workId\":3,\"fullname\":\"Madilyn Langosh\",\"address\":\"1571 Weekly Street\",\"phoneNumber\":\"2103424367\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"work\":{\"id\":3,\"name\":\"Lynch PLC\",\"address\":\"38 Lafayette St.\",\"phoneNumber\":\"9103623505\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"}}},{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52,\"waresTickets\":[{\"ticketId\":2,\"wareId\":3,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"stock\":1,\"tags\":[\"women\"],\"type\":\"bag\",\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}],\"transactions\":[{\"id\":4,\"ticketId\":2,\"orderId\":null,\"payment\":200,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}],\"client\":{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"work\":{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}},{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0,\"waresTickets\":[{\"ticketId\":1,\"wareId\":5,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"stock\":8,\"tags\":[\"unisex\"],\"type\":\"braclet\",\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"ticketId\":1,\"wareId\":2,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"stock\":4,\"tags\":[\"women\",\"3-pc\"],\"type\":\"perfume\",\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"ticketId\":1,\"wareId\":1,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"stock\":0,\"tags\":[\"women\",\"1-pc\"],\"type\":\"perfume\",\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}],\"transactions\":[{\"id\":6,\"ticketId\":1,\"orderId\":null,\"payment\":86.9,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-16T00:00:00.000Z\",\"createdAt\":\"2025-01-16T00:00:00.000Z\",\"updatedAt\":\"2025-01-16T00:00:00.000Z\"},{\"id\":3,\"ticketId\":1,\"orderId\":null,\"payment\":150,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}],\"client\":{\"id\":2,\"workId\":1,\"fullname\":\"James Moe\",\"address\":\"1823 Steele Street\",\"phoneNumber\":\"9566347775\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"work\":{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}}]"
+                  },
+                  "With one request body input of description equal to , this returns all tickets with a partial match": {
+                    "value": "[{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"returned\":155,\"paid\":13.27,\"owed\":0,\"waresTickets\":[{\"ticketId\":3,\"wareId\":1,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"stock\":0,\"tags\":[\"women\",\"1-pc\"],\"type\":\"perfume\",\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}],\"transactions\":[{\"id\":7,\"ticketId\":3,\"orderId\":null,\"payment\":-155,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-17T00:00:00.000Z\",\"createdAt\":\"2025-01-17T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"},{\"id\":5,\"ticketId\":3,\"orderId\":null,\"payment\":168.27,\"paymentType\":\"cash\",\"paidAt\":\"2025-01-13T00:00:00.000Z\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"}],\"client\":{\"id\":4,\"workId\":3,\"fullname\":\"Madilyn Langosh\",\"address\":\"1571 Weekly Street\",\"phoneNumber\":\"2103424367\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"work\":{\"id\":3,\"name\":\"Lynch PLC\",\"address\":\"38 Lafayette St.\",\"phoneNumber\":\"9103623505\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"}}},{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52,\"waresTickets\":[{\"ticketId\":2,\"wareId\":3,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"stock\":1,\"tags\":[\"women\"],\"type\":\"bag\",\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}],\"transactions\":[{\"id\":4,\"ticketId\":2,\"orderId\":null,\"payment\":200,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}],\"client\":{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"work\":{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}},{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0,\"waresTickets\":[{\"ticketId\":1,\"wareId\":5,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"stock\":8,\"tags\":[\"unisex\"],\"type\":\"braclet\",\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"ticketId\":1,\"wareId\":2,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"stock\":4,\"tags\":[\"women\",\"3-pc\"],\"type\":\"perfume\",\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}},{\"ticketId\":1,\"wareId\":1,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"stock\":0,\"tags\":[\"women\",\"1-pc\"],\"type\":\"perfume\",\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}],\"transactions\":[{\"id\":6,\"ticketId\":1,\"orderId\":null,\"payment\":86.9,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-16T00:00:00.000Z\",\"createdAt\":\"2025-01-16T00:00:00.000Z\",\"updatedAt\":\"2025-01-16T00:00:00.000Z\"},{\"id\":3,\"ticketId\":1,\"orderId\":null,\"payment\":150,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}],\"client\":{\"id\":2,\"workId\":1,\"fullname\":\"James Moe\",\"address\":\"1823 Steele Street\",\"phoneNumber\":\"9566347775\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"work\":{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}}]"
+                  },
+                  "With more than one request body inputs ({\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}), this returns all tickets that matches all the inputs": {
+                    "value": "[{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52,\"waresTickets\":[{\"ticketId\":2,\"wareId\":3,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"stock\":1,\"tags\":[\"women\"],\"type\":\"bag\",\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}],\"transactions\":[{\"id\":4,\"ticketId\":2,\"orderId\":null,\"payment\":200,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}],\"client\":{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"work\":{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}}]"
+                  },
+                  "With a date object input in the request body ({\"createdAt\":{\"year\":\"2025\",\"month\":\"1\",\"day\":\"9\",\"hour\":\"0\"}}), this returns all tickets that have a createdAt with the same year, month, day, and hour": {
+                    "value": "[{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52,\"waresTickets\":[{\"ticketId\":2,\"wareId\":3,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"stock\":1,\"tags\":[\"women\"],\"type\":\"bag\",\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}],\"transactions\":[{\"id\":4,\"ticketId\":2,\"orderId\":null,\"payment\":200,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}],\"client\":{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"work\":{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}}}]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/tickets": {
+      "summary": "Requests for tickets data",
+      "description": "This path is used to perform CRUD operations on tickets",
+      "post": {
+        "summary": "Post tickets",
+        "description": "This path uses the POST operation to create ticket",
+        "requestBody": {
+          "description": "New ticket information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ticketsPost"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "New ticket is successfully created": {
+                    "value": "Merchant: 1 ticket has been created."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tickets"
+        ]
+      }
+    },
+    "/transactions/{transactionId}": {
+      "summary": "Request for a specific transaction's data",
+      "description": "This path used to perform CRUD operations on transactions",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "transactionId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The transaction ID"
+        }
+      ],
+      "get": {
+        "summary": "Get transaction",
+        "description": "This path uses the GET operation to get specific transactions.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns transaction data with associated ticket, and order.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Transaction found given transaction id": {
+                    "value": "{\"id\":4,\"ticketId\":2,\"orderId\":null,\"payment\":200,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"paid\":200,\"returned\":0,\"owed\":288.52},\"order\":null}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Transaction not found given transaction id": {
+                    "value": "Transaction not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Transactions"
+        ]
+      },
+      "put": {
+        "summary": "Update transaction",
+        "description": "This path uses PUT operation to update transactions information.",
+        "requestBody": {
+          "description": "Transaction new information. The date properties (has the property name end with \"At\") should be in the following formats 2024-12, 2024-12-02, or \"2024-12-02T04:32:42.456Z\".",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/transactionsUpdates"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Updates one piece of information": {
+                    "value": "Merchant: 1 transaction with id = 1 was updated with given payment = 647."
+                  },
+                  "Updates multiple pieces of transaction information": {
+                    "value": "Merchant: 1 transaction with id = 4 was updated with given ticketId = 2, orderId = 7, and payment = 633."
+                  },
+                  "Updates all of an exisitng transaction information": {
+                    "value": "Merchant: 1 transaction with id = 2 was updated with given ticketId = 5, orderId = 2, payment = 694, paymentType = advenio, and paidAt = Sat Dec 27 2025 09:33:10 GMT-0600 (Central Standard Time)."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Transaction not found given transaction id": {
+                    "value": "Transaction not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Transactions"
+        ]
+      },
+      "delete": {
+        "summary": "Delete transaction",
+        "description": "This path uses the DELETE operation to delete transactions from database.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Transaction is succesfully deleted": {
+                    "value": "Merchat: 1 has deleted a transaction with id = 3."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Transaction not found given transaction id": {
+                    "value": "Transaction not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Transactions"
+        ]
+      }
+    },
+    "/transactions/search": {
+      "summary": "Requests for a specific transaction's data",
+      "description": "This path is used to perform CRUD operations on transactions",
+      "post": {
+        "summary": "Get transaction with request body",
+        "description": "This path uses the POST operation to get transactions informations using request body inputs.",
+        "requestBody": {
+          "description": "Information of transactions that can be searched for which is case insensative partial text search for string inputs, direct searches for number inputs, and month and/or year date searches for properties that end in \"At\". The date properties (has the property name end with \"At\") should be in the following formats 2024-12, 2024-12-02, or \"2024-12-02T04:32:42.456Z\".",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/transactionsPostSearchDateString"
+                  },
+                  {
+                    "$ref": "#/components/schemas/transactionsPostSearchDateObject"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns transaction data with associated ticket, and order.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "With no request body input, this returns all transactions ordered by transaction id descending": {
+                    "value": "[{\"id\":8,\"ticketId\":null,\"orderId\":1,\"payment\":1450,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-17T00:00:00.000Z\",\"createdAt\":\"2025-01-17T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"ticket\":null,\"order\":{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}},{\"id\":7,\"ticketId\":3,\"orderId\":null,\"payment\":-155,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-17T00:00:00.000Z\",\"createdAt\":\"2025-01-17T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"ticket\":{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"paid\":13.27,\"returned\":155,\"owed\":0},\"order\":null},{\"id\":6,\"ticketId\":1,\"orderId\":null,\"payment\":86.9,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-16T00:00:00.000Z\",\"createdAt\":\"2025-01-16T00:00:00.000Z\",\"updatedAt\":\"2025-01-16T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"paid\":236.9,\"returned\":155,\"owed\":0},\"order\":null},{\"id\":5,\"ticketId\":3,\"orderId\":null,\"payment\":168.27,\"paymentType\":\"cash\",\"paidAt\":\"2025-01-13T00:00:00.000Z\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"ticket\":{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"paid\":13.27,\"returned\":155,\"owed\":0},\"order\":null},{\"id\":4,\"ticketId\":2,\"orderId\":null,\"payment\":200,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"paid\":200,\"returned\":0,\"owed\":288.52},\"order\":null},{\"id\":3,\"ticketId\":1,\"orderId\":null,\"payment\":150,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"paid\":236.9,\"returned\":155,\"owed\":0},\"order\":null},{\"id\":2,\"ticketId\":null,\"orderId\":2,\"payment\":959.59,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-01T20:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ticket\":null,\"order\":{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"}},{\"id\":1,\"ticketId\":null,\"orderId\":1,\"payment\":3413.65,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-01T20:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ticket\":null,\"order\":{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}}]"
+                  },
+                  "With one request body input of paidAt equal to Thu Jan 02 2025 00:00:00 GMT-0600 (Central Standard Time), this returns all transactions with a partial match": {
+                    "value": "[{\"id\":8,\"ticketId\":null,\"orderId\":1,\"payment\":1450,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-17T00:00:00.000Z\",\"createdAt\":\"2025-01-17T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"ticket\":null,\"order\":{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}},{\"id\":7,\"ticketId\":3,\"orderId\":null,\"payment\":-155,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-17T00:00:00.000Z\",\"createdAt\":\"2025-01-17T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"ticket\":{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"paid\":13.27,\"returned\":155,\"owed\":0},\"order\":null},{\"id\":6,\"ticketId\":1,\"orderId\":null,\"payment\":86.9,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-16T00:00:00.000Z\",\"createdAt\":\"2025-01-16T00:00:00.000Z\",\"updatedAt\":\"2025-01-16T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"paid\":236.9,\"returned\":155,\"owed\":0},\"order\":null},{\"id\":5,\"ticketId\":3,\"orderId\":null,\"payment\":168.27,\"paymentType\":\"cash\",\"paidAt\":\"2025-01-13T00:00:00.000Z\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"ticket\":{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"paid\":13.27,\"returned\":155,\"owed\":0},\"order\":null},{\"id\":4,\"ticketId\":2,\"orderId\":null,\"payment\":200,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"paid\":200,\"returned\":0,\"owed\":288.52},\"order\":null},{\"id\":3,\"ticketId\":1,\"orderId\":null,\"payment\":150,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"paid\":236.9,\"returned\":155,\"owed\":0},\"order\":null},{\"id\":2,\"ticketId\":null,\"orderId\":2,\"payment\":959.59,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-01T20:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ticket\":null,\"order\":{\"id\":2,\"providerId\":2,\"cost\":959.59,\"tax\":89.59,\"shipment\":20,\"expectedAt\":\"2025-01-09T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\"}},{\"id\":1,\"ticketId\":null,\"orderId\":1,\"payment\":3413.65,\"paymentType\":\"visa\",\"paidAt\":\"2025-01-01T20:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\",\"ticket\":null,\"order\":{\"id\":1,\"providerId\":1,\"cost\":3413.65,\"tax\":283.65,\"shipment\":50,\"expectedAt\":\"2025-01-08T00:00:00.000Z\",\"actualAt\":\"2025-01-09T00:00:00.000Z\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}}]"
+                  },
+                  "With more than one request body inputs ({\"ticketId\":3,\"payment\":-155,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-17\",\"createdAt\":\"2025-01-17\",\"updatedAt\":\"2025-01-17\"}), this returns all transactions that matches all the inputs": {
+                    "value": "[{\"id\":7,\"ticketId\":3,\"orderId\":null,\"payment\":-155,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-17T00:00:00.000Z\",\"createdAt\":\"2025-01-17T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"ticket\":{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"paid\":13.27,\"returned\":155,\"owed\":0},\"order\":null}]"
+                  },
+                  "With a date object input in the request body ({\"paidAt\":{\"year\":\"2025\",\"month\":\"1\",\"day\":\"17\"}}), this returns all transactions that have paidAt with the same year, month, and day": {
+                    "value": "[{\"id\":7,\"ticketId\":3,\"orderId\":null,\"payment\":-155,\"paymentType\":\"cash app\",\"paidAt\":\"2025-01-17T00:00:00.000Z\",\"createdAt\":\"2025-01-17T00:00:00.000Z\",\"updatedAt\":\"2025-01-17T00:00:00.000Z\",\"ticket\":{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"paid\":13.27,\"returned\":155,\"owed\":0},\"order\":null}]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Transactions"
+        ]
+      }
+    },
+    "/transactions": {
+      "summary": "Requests for transactions data",
+      "description": "This path is used to perform CRUD operations on transactions",
+      "post": {
+        "summary": "Post transactions",
+        "description": "This path uses the POST operation to create transaction",
+        "requestBody": {
+          "description": "New transaction information. The date properties (has the property name end with \"At\") should be in the following formats 2024-12, 2024-12-02, or \"2024-12-02T04:32:42.456Z\".",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/transactionsPost"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "New transaction is successfully created": {
+                    "value": "Merchant: 1 transaction has been created."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Transactions"
+        ]
+      }
+    },
+    "/wares/{wareId}": {
+      "summary": "Request for a specific ware's data",
+      "description": "This path used to perform CRUD operations on wares",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "wareId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The ware ID"
+        }
+      ],
+      "get": {
+        "summary": "Get ware",
+        "description": "This path uses the GET operation to get specific wares.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns ware data with associated sold, bought, and tickets.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ware found given ware id": {
+                    "value": "{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":5,\"ordersWares\":[{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}],\"waresTickets\":[]}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ware not found given ware id": {
+                    "value": "Ware not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Wares"
+        ]
+      },
+      "put": {
+        "summary": "Update ware",
+        "description": "This path uses PUT operation to update wares information.",
+        "requestBody": {
+          "description": "Ware new information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/waresUpdates"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Updates one piece of information": {
+                    "value": "Merchant: 1 ware with id = 1 was updated with given tags = unisex,bag."
+                  },
+                  "Updates multiple pieces of ware information": {
+                    "value": "Merchant: 1 ware with id = 4 was updated with given name = incidunt, type = totam, and tags = woman,perfume."
+                  },
+                  "Updates all of an exisitng ware information": {
+                    "value": "Merchant: 1 ware with id = 2 was updated with given name = corrupti, type = temporibus, tags = man,necklace, and unitPrice = 651."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ware not found given ware id": {
+                    "value": "Ware not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Wares"
+        ]
+      },
+      "delete": {
+        "summary": "Delete ware",
+        "description": "This path uses the DELETE operation to delete wares from database.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ware is succesfully deleted": {
+                    "value": "Merchat: 1 has deleted a ware with id = 3 and fullname = Refined Steel Hat."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ware not found given ware id": {
+                    "value": "Ware not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Wares"
+        ]
+      }
+    },
+    "/wares/search": {
+      "summary": "Requests for a specific ware's data",
+      "description": "This path is used to perform CRUD operations on wares",
+      "post": {
+        "summary": "Get ware with request body",
+        "description": "This path uses the POST operation to get wares informations using request body inputs.",
+        "requestBody": {
+          "description": "Information of wares that can be searched for which is case insensative partial text search for string inputs, direct searches for number inputs, and month and/or year date searches for properties that end in \"At\".",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/waresPostSearchDateString"
+                  },
+                  {
+                    "$ref": "#/components/schemas/waresPostSearchDateObject"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns ware data with associated sold, bought, and tickets.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "With no request body input, this returns all wares ordered by ware id descending": {
+                    "value": "[{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":8,\"ordersWares\":[{\"id\":5,\"wareId\":5,\"orderId\":2,\"unitPrice\":10,\"amount\":10,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}],\"waresTickets\":[{\"wareId\":5,\"ticketId\":1,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}]},{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":5,\"ordersWares\":[{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}],\"waresTickets\":[]},{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"type\":\"bag\",\"tags\":[\"women\"],\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":1,\"ordersWares\":[{\"id\":3,\"wareId\":3,\"orderId\":1,\"unitPrice\":415,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}],\"waresTickets\":[{\"wareId\":3,\"ticketId\":2,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}]},{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"type\":\"perfume\",\"tags\":[\"women\",\"3-pc\"],\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":4,\"ordersWares\":[{\"id\":2,\"wareId\":2,\"orderId\":1,\"unitPrice\":160,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}],\"waresTickets\":[{\"wareId\":2,\"ticketId\":1,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}]},{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":0,\"ordersWares\":[{\"id\":1,\"wareId\":1,\"orderId\":1,\"unitPrice\":145,\"amount\":10,\"returned\":10,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}],\"waresTickets\":[{\"wareId\":1,\"ticketId\":3,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"},{\"wareId\":1,\"ticketId\":1,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}]}]"
+                  },
+                  "With one request body input of name equal to versace, this returns all wares with a partial match": {
+                    "value": "{\"id\":4,\"name\":\"Versace Men's 4-Pc. Eros Eau de Toilette Gift Set\",\"type\":\"perfume\",\"tags\":[\"men\",\"4-pc\"],\"unitPrice\":176,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":5,\"ordersWares\":[{\"id\":4,\"wareId\":4,\"orderId\":2,\"unitPrice\":150,\"amount\":5,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}],\"waresTickets\":[]}"
+                  },
+                  "With more than one request body inputs ({\"id\":5,\"name\":\"Eymi\",\"type\":\"brac\",\"tags\":[\"unisex\"],\"stock\":8,\"unitPrice\":14,\"createdAt\":\"2025-01-09\",\"updatedAt\":\"2025-01-09\"}), this returns all wares that matches all the inputs": {
+                    "value": "[{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":8,\"ordersWares\":[{\"id\":5,\"wareId\":5,\"orderId\":2,\"unitPrice\":10,\"amount\":10,\"returned\":0,\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}],\"waresTickets\":[{\"wareId\":5,\"ticketId\":1,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}]}]"
+                  },
+                  "With a date object input in the request body ({\"createdAt\":{\"year\":\"2024\"}}), this returns all wares that matches all the inputs": {
+                    "value": "[]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Wares"
+        ]
+      }
+    },
+    "/wares": {
+      "summary": "Requests for wares data",
+      "description": "This path is used to perform CRUD operations on wares",
+      "post": {
+        "summary": "Post wares",
+        "description": "This path uses the POST operation to create ware",
+        "requestBody": {
+          "description": "New ware information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/waresPost"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "New ware is successfully created": {
+                    "value": "Merchant: 1 ware has been created."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Wares"
+        ]
+      }
+    },
+    "/warestickets/{ticketId}/{wareId}": {
+      "summary": "Request for a specific waresticket's data",
+      "description": "This path used to perform CRUD operations on warestickets",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "ticketId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The ticket ID"
+        },
+        {
+          "in": "path",
+          "name": "wareId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The ware ID"
+        }
+      ],
+      "get": {
+        "summary": "Get waresticket",
+        "description": "This path uses the GET operation to get specific warestickets.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns waresticket data with associated ware, and ticket.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "WaresTicket found given ticket id and ware id": {
+                    "value": "{\"wareId\":1,\"ticketId\":3,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"ticket\":{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"returned\":155,\"paid\":13.27,\"owed\":0},\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":0}}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "WaresTicket not found given ticket id": {
+                    "value": "Ticket not found."
+                  },
+                  "WaresTicket not found given ware id": {
+                    "value": "WaresTicket not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "WaresTickets"
+        ]
+      },
+      "put": {
+        "summary": "Update waresticket",
+        "description": "This path uses PUT operation to update warestickets information.",
+        "requestBody": {
+          "description": "WaresTicket new information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/waresticketsUpdates"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Updates one piece of information": {
+                    "value": "Merchant: 1 waresticket with ticket id = 1 and ware id = 7 was updated with given returned = 6."
+                  },
+                  "Updates multiple pieces of waresticket information": {
+                    "value": "Merchant: 1 waresticket with ticket id = 4 and ware id = 3 was updated with given amount = 4, and returned = 5."
+                  },
+                  "Updates all of an exisitng waresticket information": {
+                    "value": "Merchant: 1 waresticket with ticket id = 2 and ware id = 1 was updated with given amount = 7, and returned = 2."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "WaresTicket not found given ticket id": {
+                    "value": "Ticket not found."
+                  },
+                  "WaresTicket not found given ware id": {
+                    "value": "WaresTicket not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "WaresTickets"
+        ]
+      },
+      "delete": {
+        "summary": "Delete waresticket",
+        "description": "This path uses the DELETE operation to delete warestickets from database.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "WaresTicket is succesfully deleted": {
+                    "value": "Merchat: 1 has deleted a waresticket with ticket id = 3 and ware id = 2."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "WaresTicket not found given ticket id": {
+                    "value": "Ticket not found."
+                  },
+                  "WaresTicket not found given ware id": {
+                    "value": "WaresTicket not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "WaresTickets"
+        ]
+      }
+    },
+    "/warestickets/search": {
+      "summary": "Requests for a specific waresticket's data",
+      "description": "This path is used to perform CRUD operations on warestickets",
+      "post": {
+        "summary": "Get waresticket with request body",
+        "description": "This path uses the POST operation to get warestickets informations using request body inputs.",
+        "requestBody": {
+          "description": "Information of warestickets that can be searched for which is case insensative partial text search for string inputs, direct searches for number inputs, and month and/or year date searches for properties that end in \"At\".",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/waresticketsPostSearchDateString"
+                  },
+                  {
+                    "$ref": "#/components/schemas/waresticketsPostSearchDateObject"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns waresticket data with associated ware, and ticket.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "With no request body input, this returns all warestickets ordered by waresticket id descending": {
+                    "value": "[{\"wareId\":1,\"ticketId\":3,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"ticket\":{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"returned\":155,\"paid\":13.27,\"owed\":0},\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":0}},{\"wareId\":3,\"ticketId\":2,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52},\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"type\":\"bag\",\"tags\":[\"women\"],\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":1}},{\"wareId\":5,\"ticketId\":1,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0},\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":8}},{\"wareId\":2,\"ticketId\":1,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0},\"ware\":{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"type\":\"perfume\",\"tags\":[\"women\",\"3-pc\"],\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":4}},{\"wareId\":1,\"ticketId\":1,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0},\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":0}}]"
+                  },
+                  "With one request body input of wareId equal to 1, this returns all warestickets with a partial match": {
+                    "value": "[{\"wareId\":1,\"ticketId\":3,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"ticket\":{\"id\":3,\"clientId\":4,\"cost\":168.27,\"paymentPlan\":\"lump sum\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"returned\":155,\"paid\":13.27,\"owed\":0},\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":0}},{\"wareId\":3,\"ticketId\":2,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":2,\"clientId\":3,\"cost\":488.52,\"paymentPlan\":\"biweekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":0,\"paid\":200,\"owed\":288.52},\"ware\":{\"id\":3,\"name\":\"The Leather Medium Tote Bag\",\"type\":\"bag\",\"tags\":[\"women\"],\"unitPrice\":450,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":1}},{\"wareId\":5,\"ticketId\":1,\"amount\":2,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0},\"ware\":{\"id\":5,\"name\":\"Eymi Unisex Leather Braclet with Infinity Sign Symbolic Love Fashion Braided Wristband Bangle\",\"type\":\"braclet\",\"tags\":[\"unisex\"],\"unitPrice\":14,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":8}},{\"wareId\":2,\"ticketId\":1,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0},\"ware\":{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"type\":\"perfume\",\"tags\":[\"women\",\"3-pc\"],\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":4}},{\"wareId\":1,\"ticketId\":1,\"amount\":1,\"returned\":1,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0},\"ware\":{\"id\":1,\"name\":\"Loewe 001 Woman Perfume\",\"type\":\"perfume\",\"tags\":[\"women\",\"1-pc\"],\"unitPrice\":155,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":0}}]"
+                  },
+                  "With more than one request body inputs ({\"ticketId\":1,\"wareId\":2,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09\",\"updatedAt\":\"2025-01-09\"}), this returns all warestickets that matches all the inputs": {
+                    "value": "[{\"wareId\":2,\"ticketId\":1,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0},\"ware\":{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"type\":\"perfume\",\"tags\":[\"women\",\"3-pc\"],\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":4}}]"
+                  },
+                  "With a date object input in the request body ({\"createdAt\":{\"year\":\"2025\",\"month\":\"1\",\"day\":\"9\"}}), this returns all warestickets that have createdAt with the same year, month, and day": {
+                    "value": "[{\"wareId\":2,\"ticketId\":1,\"amount\":1,\"returned\":0,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"ticket\":{\"id\":1,\"clientId\":2,\"cost\":391.9,\"paymentPlan\":\"weekly\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"returned\":155,\"paid\":236.9,\"owed\":0},\"ware\":{\"id\":2,\"name\":\"DIOR 3-Pc. J'dore Eau de Parfum Gift Set\",\"type\":\"perfume\",\"tags\":[\"women\",\"3-pc\"],\"unitPrice\":178,\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"stock\":4}}]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "WaresTickets"
+        ]
+      }
+    },
+    "/warestickets": {
+      "summary": "Requests for warestickets data",
+      "description": "This path is used to perform CRUD operations on warestickets",
+      "post": {
+        "summary": "Post warestickets",
+        "description": "This path uses the POST operation to create waresticket",
+        "requestBody": {
+          "description": "New waresticket information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/waresticketsPost"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "New waresticket is successfully created": {
+                    "value": "Merchant: 1 waresticket has been created."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "WaresTickets"
+        ]
+      }
+    },
+    "/warestickets/{ticketId}": {
+      "summary": "Requests for warestickets data",
+      "description": "This path is used to perform Delete operation on warestickets",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "ticketId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The ticket ID"
+        }
+      ],
+      "delete": {
+        "summary": "Post warestickets",
+        "description": "This path uses the Delete operation to delete all warestickets that belong to an ticket",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "WaresTickets are successfully deleted": {
+                    "value": "Merchant: 1 has deleted all warestickets with ticket id = 5."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Ticket not found given ticket id": {
+                    "value": "Ticket not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "WaresTickets"
+        ]
+      }
+    },
+    "/works/{workId}": {
+      "summary": "Request for a specific work's data",
+      "description": "This path used to perform CRUD operations on works",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "workId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "The work ID"
+        }
+      ],
+      "get": {
+        "summary": "Get work",
+        "description": "This path uses the GET operation to get specific works.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns work data with associated clients.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Work found given work id": {
+                    "value": "{\"id\":3,\"name\":\"Lynch PLC\",\"address\":\"38 Lafayette St.\",\"phoneNumber\":\"9103623505\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"clients\":[{\"id\":4,\"workId\":3,\"fullname\":\"Madilyn Langosh\",\"address\":\"1571 Weekly Street\",\"phoneNumber\":\"2103424367\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Work not found given work id": {
+                    "value": "Work not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Works"
+        ]
+      },
+      "put": {
+        "summary": "Update work",
+        "description": "This path uses PUT operation to update works information.",
+        "requestBody": {
+          "description": "Work new information. phoneNumber must be written with parenthesis and dashes ((XXX)XXX-XXXX), just dashes (XXX-XXX-XXXX), or all together (XXXXXXXXXX).",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/worksUpdates"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Updates one piece of information": {
+                    "value": "Merchant: 1 work with id = 1 was updated with given name = utrimque."
+                  },
+                  "Updates multiple pieces of work information": {
+                    "value": "Merchant: 1 work with id = 4 was updated with given name = sufficio, and address = 50039 Keebler Hills."
+                  },
+                  "Updates all of an exisitng work information": {
+                    "value": "Merchant: 1 work with id = 2 was updated with given name = talus, address = 860 East Road, and phoneNumber = 168-626-1514."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "No inputs are given in the request body": {
+                    "value": "Bad input request."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Work not found given work id": {
+                    "value": "Work not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Works"
+        ]
+      },
+      "delete": {
+        "summary": "Delete work",
+        "description": "This path uses the DELETE operation to delete works from database.",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Work is succesfully deleted": {
+                    "value": "Merchat: 1 has deleted a work with id = 3 and fullname = Ratke, Olson and Spencer."
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Work not found given work id": {
+                    "value": "Work not found."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Works"
+        ]
+      }
+    },
+    "/works/search": {
+      "summary": "Requests for a specific work's data",
+      "description": "This path is used to perform CRUD operations on works",
+      "post": {
+        "summary": "Get work with request body",
+        "description": "This path uses the POST operation to get works informations using request body inputs.",
+        "requestBody": {
+          "description": "Information of works that can be searched for which is case insensative partial text search for string inputs, direct searches for number inputs, and month and/or year date searches for properties that end in \"At\".phoneNumber must be written with all numbers with no special characters and have less than 10 characters.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/worksPostSearchDateString"
+                  },
+                  {
+                    "$ref": "#/components/schemas/worksPostSearchDateObject"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK, returns work data with associated clients.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "With no request body input, this returns all works ordered by work id descending": {
+                    "value": "[{\"id\":3,\"name\":\"Lynch PLC\",\"address\":\"38 Lafayette St.\",\"phoneNumber\":\"9103623505\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"clients\":[{\"id\":4,\"workId\":3,\"fullname\":\"Madilyn Langosh\",\"address\":\"1571 Weekly Street\",\"phoneNumber\":\"2103424367\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"}]},{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"clients\":[{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}]},{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"clients\":[{\"id\":2,\"workId\":1,\"fullname\":\"James Moe\",\"address\":\"1823 Steele Street\",\"phoneNumber\":\"9566347775\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"},{\"id\":1,\"workId\":1,\"fullname\":\"Defective\",\"address\":\"0000 Street\",\"phoneNumber\":\"0000000000\",\"description\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}]}]"
+                  },
+                  "With one request body input of name equal to de, this returns all works with a partial match": {
+                    "value": "[{\"id\":3,\"name\":\"Lynch PLC\",\"address\":\"38 Lafayette St.\",\"phoneNumber\":\"9103623505\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\",\"clients\":[{\"id\":4,\"workId\":3,\"fullname\":\"Madilyn Langosh\",\"address\":\"1571 Weekly Street\",\"phoneNumber\":\"2103424367\",\"description\":\"\",\"createdAt\":\"2025-01-13T00:00:00.000Z\",\"updatedAt\":\"2025-01-13T00:00:00.000Z\"}]},{\"id\":2,\"name\":\"Deckow and Sons\",\"address\":\"245 John Drive\",\"phoneNumber\":\"7644084620\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"clients\":[{\"id\":3,\"workId\":2,\"fullname\":\"Kellen Paucek\",\"address\":\"1454 Sussex Court\",\"phoneNumber\":\"2543865553\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"}]},{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"clients\":[{\"id\":2,\"workId\":1,\"fullname\":\"James Moe\",\"address\":\"1823 Steele Street\",\"phoneNumber\":\"9566347775\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"},{\"id\":1,\"workId\":1,\"fullname\":\"Defective\",\"address\":\"0000 Street\",\"phoneNumber\":\"0000000000\",\"description\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}]}]"
+                  },
+                  "With more than one request body inputs ({\"name\":\"de\",\"address\":\"38\"}), this returns all works that matches all the inputs": {
+                    "value": "[{\"id\":1,\"name\":\"Hamill, Denesik and Davis\",\"address\":\"38 Galvin Ave.\",\"phoneNumber\":\"9075554011\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\",\"clients\":[{\"id\":2,\"workId\":1,\"fullname\":\"James Moe\",\"address\":\"1823 Steele Street\",\"phoneNumber\":\"9566347775\",\"description\":\"\",\"createdAt\":\"2025-01-09T00:00:00.000Z\",\"updatedAt\":\"2025-01-09T00:00:00.000Z\"},{\"id\":1,\"workId\":1,\"fullname\":\"Defective\",\"address\":\"0000 Street\",\"phoneNumber\":\"0000000000\",\"description\":\"\",\"createdAt\":\"2025-01-01T00:00:00.000Z\",\"updatedAt\":\"2025-01-01T00:00:00.000Z\"}]}]"
+                  },
+                  "With a date object input in the request body ({\"createdAt\":{\"year\":\"2026\"}}), this returns all works that have createdAt with same year": {
+                    "value": "[]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Works"
+        ]
+      }
+    },
+    "/works": {
+      "summary": "Requests for works data",
+      "description": "This path is used to perform CRUD operations on works",
+      "post": {
+        "summary": "Post works",
+        "description": "This path uses the POST operation to create work",
+        "requestBody": {
+          "description": "New work information. phoneNumber must be written with parenthesis and dashes ((XXX)XXX-XXXX), just dashes (XXX-XXX-XXXX), or all together (XXXXXXXXXX).",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/worksPost"
+              }
+            }
+          }
+        },
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "New work is successfully created": {
+                    "value": "Merchant: 1 work has been created."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Works"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "timeStampString": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "dateObject": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "month": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "day": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31
+          },
+          "hour": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 23
+          }
+        },
+        "xml": {
+          "name": "Date object"
+        }
+      },
+      "timeStampObject": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "$ref": "#/components/schemas/dateObject"
+          },
+          "updatedAt": {
+            "$ref": "#/components/schemas/dateObject"
+          }
+        }
+      },
+      "merchantCredentials": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Merchant Credentials"
+        }
+      },
+      "merchantUpdates": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "newUsername": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "xml": {
+          "name": "Merchant Credentials and New Credentials"
+        }
+      },
+      "clientsUpdates": {
+        "type": "object",
+        "properties": {
+          "workId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "fullname": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Updated client information"
+        }
+      },
+      "clientsPostSearch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "workId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "fullname": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Searched client information"
+        }
+      },
+      "clientsPostSearchDateString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/clientsPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampString"
+          }
+        ],
+        "xml": {
+          "name": "Searched client information with exact date"
+        }
+      },
+      "clientsPostSearchDateObject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/clientsPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampObject"
+          }
+        ],
+        "xml": {
+          "name": "Searched client information with date within given date object"
+        }
+      },
+      "clientsPost": {
+        "type": "object",
+        "properties": {
+          "workId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "fullname": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "workId",
+          "fullname",
+          "address",
+          "phoneNumber",
+          "description"
+        ],
+        "xml": {
+          "name": "New client information"
+        }
+      },
+      "ordersUpdates": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "providerId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cost": {
+            "type": "number",
+            "minimum": 0
+          },
+          "tax": {
+            "type": "number",
+            "minimum": 0
+          },
+          "shipment": {
+            "type": "number",
+            "minimum": 0
+          },
+          "expectedAt": {
+            "type": "string"
+          },
+          "actualAt": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Updated order information"
+        }
+      },
+      "ordersPostSearch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "providerId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cost": {
+            "type": "number",
+            "minimum": 0
+          },
+          "tax": {
+            "type": "number",
+            "minimum": 0
+          },
+          "shipment": {
+            "type": "number",
+            "minimum": 0
+          },
+          "expectedAt": {
+            "type": "string"
+          },
+          "actualAt": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "ordersPostSearchDateString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ordersPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampString"
+          }
+        ],
+        "xml": {
+          "name": "Searched order information with exact date"
+        }
+      },
+      "ordersPostSearchDateObject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ordersPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampObject"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "expectedAt": {
+                "$ref": "#/components/schemas/dateObject"
+              },
+              "actualAt": {
+                "$ref": "#/components/schemas/dateObject"
+              }
+            }
+          }
+        ],
+        "xml": {
+          "name": "Searched order information with date within given date object"
+        }
+      },
+      "ordersPost": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cost": {
+            "type": "number",
+            "minimum": 0
+          },
+          "tax": {
+            "type": "number",
+            "minimum": 0
+          },
+          "shipment": {
+            "type": "number",
+            "minimum": 0
+          },
+          "expectedAt": {
+            "type": "string"
+          },
+          "actualAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "providerId",
+          "cost",
+          "tax",
+          "shipment",
+          "expectedAt",
+          "actualAt"
+        ],
+        "xml": {
+          "name": "New order information"
+        }
+      },
+      "orderswaresUpdates": {
+        "type": "object",
+        "properties": {
+          "wareId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "orderId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "returned": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "xml": {
+          "name": "Updated ordersware information"
+        }
+      },
+      "orderswaresPostSearch": {
+        "type": "object",
+        "properties": {
+          "wareId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "orderId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "returned": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "orderswaresPostSearchDateString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/orderswaresPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampString"
+          }
+        ],
+        "xml": {
+          "name": "Searched ordersware information with exact date"
+        }
+      },
+      "orderswaresPostSearchDateObject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/orderswaresPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampObject"
+          }
+        ],
+        "xml": {
+          "name": "Searched ordersware information with date within given date object"
+        }
+      },
+      "orderswaresPost": {
+        "type": "object",
+        "properties": {
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "returned": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "unitPrice",
+          "amount",
+          "returned"
+        ],
+        "xml": {
+          "name": "New ordersware information"
+        }
+      },
+      "providersUpdates": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Updated provider information"
+        }
+      },
+      "providersPostSearch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "providersPostSearchDateString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/providersPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampString"
+          }
+        ],
+        "xml": {
+          "name": "Searched provider information with exact date"
+        }
+      },
+      "providersPostSearchDateObject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/providersPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampObject"
+          }
+        ],
+        "xml": {
+          "name": "Searched provider information with date within given date object"
+        }
+      },
+      "providersPost": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "address",
+          "phoneNumber",
+          "email"
+        ],
+        "xml": {
+          "name": "New provider information"
+        }
+      },
+      "ticketsUpdates": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "clientId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cost": {
+            "type": "number",
+            "minimum": 0
+          },
+          "paymentPlan": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Updated ticket information"
+        }
+      },
+      "ticketsPostSearch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "clientId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cost": {
+            "type": "number",
+            "minimum": 0
+          },
+          "paymentPlan": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "ticketsPostSearchDateString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ticketsPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampString"
+          }
+        ],
+        "xml": {
+          "name": "Searched ticket information with exact date"
+        }
+      },
+      "ticketsPostSearchDateObject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ticketsPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampObject"
+          }
+        ],
+        "xml": {
+          "name": "Searched ticket information with date within given date object"
+        }
+      },
+      "ticketsPost": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cost": {
+            "type": "number",
+            "minimum": 0
+          },
+          "paymentPlan": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "clientId",
+          "cost",
+          "paymentPlan",
+          "description"
+        ],
+        "xml": {
+          "name": "New ticket information"
+        }
+      },
+      "transactionsUpdates": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "ticketId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "orderId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "payment": {
+            "type": "number",
+            "minimum": 0
+          },
+          "paymentType": {
+            "type": "string"
+          },
+          "paidAt": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Updated transaction information"
+        }
+      },
+      "transactionsPostSearch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "ticketId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "orderId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "payment": {
+            "type": "number",
+            "minimum": 0
+          },
+          "paymentType": {
+            "type": "string"
+          },
+          "paidAt": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "transactionsPostSearchDateString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/transactionsPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampString"
+          }
+        ],
+        "xml": {
+          "name": "Searched transaction information with exact date"
+        }
+      },
+      "transactionsPostSearchDateObject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/transactionsPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampObject"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "paidAt": {
+                "$ref": "#/components/schemas/dateObject"
+              }
+            }
+          }
+        ],
+        "xml": {
+          "name": "Searched transaction information with date within given date object"
+        }
+      },
+      "transactionsPost": {
+        "type": "object",
+        "properties": {
+          "ticketId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "orderId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "payment": {
+            "type": "number",
+            "minimum": 0
+          },
+          "paymentType": {
+            "type": "string"
+          },
+          "paidAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ticketId",
+          "orderId",
+          "payment",
+          "paymentType",
+          "paidAt"
+        ],
+        "xml": {
+          "name": "New transaction information"
+        }
+      },
+      "waresUpdates": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "xml": {
+          "name": "Updated ware information"
+        }
+      },
+      "waresPostSearch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "waresPostSearchDateString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/waresPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampString"
+          }
+        ],
+        "xml": {
+          "name": "Searched ware information with exact date"
+        }
+      },
+      "waresPostSearchDateObject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/waresPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampObject"
+          }
+        ],
+        "xml": {
+          "name": "Searched ware information with date within given date object"
+        }
+      },
+      "waresPost": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "tags",
+          "unitPrice"
+        ],
+        "xml": {
+          "name": "New ware information"
+        }
+      },
+      "waresticketsUpdates": {
+        "type": "object",
+        "properties": {
+          "wareId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "ticketId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "returned": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "xml": {
+          "name": "Updated waresticket information"
+        }
+      },
+      "waresticketsPostSearch": {
+        "type": "object",
+        "properties": {
+          "wareId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "ticketId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "returned": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "waresticketsPostSearchDateString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/waresticketsPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampString"
+          }
+        ],
+        "xml": {
+          "name": "Searched warestickets information with exact date"
+        }
+      },
+      "waresticketsPostSearchDateObject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/waresticketsPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampObject"
+          }
+        ],
+        "xml": {
+          "name": "Searched warestickets information with date within given date object"
+        }
+      },
+      "waresticketsPost": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "returned": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "amount",
+          "returned"
+        ],
+        "xml": {
+          "name": "New waresticket information"
+        }
+      },
+      "worksUpdates": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "Updated work information"
+        }
+      },
+      "worksPostSearch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "worksPostSearchDateString": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/worksPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampString"
+          }
+        ],
+        "xml": {
+          "name": "Searched work information with exact date"
+        }
+      },
+      "worksPostSearchDateObject": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/worksPostSearch"
+          },
+          {
+            "$ref": "#/components/schemas/timeStampObject"
+          }
+        ],
+        "xml": {
+          "name": "Searched work information with date within given date object"
+        }
+      },
+      "worksPost": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "address",
+          "phoneNumber"
+        ],
+        "xml": {
+          "name": "New work information"
+        }
+      }
+    }
+  }
+}

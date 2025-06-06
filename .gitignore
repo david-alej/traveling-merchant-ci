@@ -1,0 +1,6 @@
+./backend/.env
+docker-run.txt
+notes.txt
+**/dump.rdb
+backend/node_modules
+frontend/node_modules

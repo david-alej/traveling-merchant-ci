@@ -1,0 +1,119 @@
+Table Merchant {
+  id integer [primary key]
+  username varchar
+  password varchar
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Works {
+  id integer [primary key]
+  name varchar
+  address varchar
+  phoneNumber varchar
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Clients {
+  id integer [primary key]
+  workId integer
+  fullname varchar
+  address varchar
+  phoneNumber varchar
+  description text
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Tickets {
+  id integer [primary key]
+  clientId integer
+  cost float
+  paymentPlan varchar
+  description text
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Transactions {
+  id integer [primary key]
+  ticketId integer
+  orderId integer
+  payment float
+  paymentType varchar
+  paidAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table WaresTickets {
+  wareId integer [primary key]
+  ticketId integer [primary key]
+  amount integer
+  returned integer
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Wares {
+  id integer [primary key]
+  name varchar
+  type varchar
+  tags array
+  unitPrice float
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table OrdersWares {
+  wareId integer [primary key]
+  orderId integer [primary key]
+  amount integer
+  unitPrice float
+  returned integer
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Orders {
+  id integer [primary key]
+  providerId integer
+  cost float
+  tax float
+  shipment float
+  expectedAt timestamp
+  actualAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table Providers {
+  id integer [primary key]
+  name varchar
+  address varchar
+  phoneNumber varchar
+  email varchar
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+// Ref: > many to one
+
+Ref: Clients.workId > Works.id
+
+Ref: Tickets.clientId > Clients.id
+
+Ref: Transactions.ticketId > Tickets.id
+
+Ref: WaresTickets.ticketId > Tickets.id
+
+Ref: WaresTickets.wareId > Wares.id
+
+Ref: OrdersWares.wareId > Wares.id
+
+Ref: OrdersWares.orderId > Orders.id
+
+Ref: Transactions.orderId > Orders.id
+
+Ref: Orders.providerId > Providers.id

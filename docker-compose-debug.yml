@@ -1,0 +1,11 @@
+# Overlay configuration to enable debuggers
+services:
+  backend:
+    command:
+      - "npm"
+      - "run"
+      - "debug-docker"
+    ports:
+      - "3000:3000"
+      # inspect debug port
+      - "9229:9229"

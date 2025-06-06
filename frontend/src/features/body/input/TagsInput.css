@@ -1,0 +1,69 @@
+/* Inherits CSS from DropDown and MultiSelectFilter react components */
+.tags-input-container {
+  min-width: 85%;
+}
+
+.tags-input-container .custom-select {
+  width: 100%;
+}
+
+.select-box.disabled {
+  border-color: var(--faded-color);
+}
+
+.make-tag-container {
+  min-width: 10rem;
+}
+
+.make-tag-box {
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  border: solid 0.2rem #000;
+  box-sizing: border-box;
+  min-height: 2.5rem;
+  max-height: 3rem;
+}
+
+.tag-input {
+  outline: none;
+  border: none;
+  flex: 1 1 100%;
+}
+
+.tag-input::placeholder {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #8a8e9d;
+}
+
+.create-icon,
+.tag-input-clear-button,
+.add-tag-button {
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  padding: 0 0.5rem;
+  flex: 1 1 10%;
+}
+
+.add-tag-button {
+  padding: 0 0.25rem;
+}
+
+.tag-input-clear-button {
+  /* margin-top: 0.25rem; */
+  border: 0;
+  z-index: 2;
+  background: none;
+  color: var(--main-color);
+  border-radius: 6.25rem;
+  cursor: pointer;
+  padding: 0.1rem;
+}
+
+.tag-input-clear-button .button-icon {
+  padding: 0.5rem;
+}

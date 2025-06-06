@@ -1,0 +1,284 @@
+/* Datum Headers */
+.datum-headers {
+  width: 100%;
+  height: 5%;
+}
+
+.datum-headers,
+.datum-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.datum-header {
+  border-radius: 1rem;
+  width: 20%;
+  min-height: 2rem;
+  max-height: 3rem;
+}
+
+.datum-header:hover {
+  background-color: var(--secondary-color);
+  color: #fff;
+}
+
+.datum-header:active,
+.datum-header.active {
+  background-color: var(--main-color);
+  color: #fff;
+}
+
+.datum-header .action-button {
+  padding: 0.5rem;
+}
+
+/* Datum */
+.datum {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 90%;
+  padding: 1rem;
+}
+
+.datum .arrow,
+.mini-datum .arrow,
+.mini-table .arrow {
+  width: 5%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* Create */
+.create {
+  margin-top: 1%;
+}
+
+.create .submit-container {
+  margin-top: 1%;
+}
+
+/* Rows */
+.row,
+.sub-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  min-height: 2rem;
+  margin: 0.1rem;
+}
+
+.row:last-child,
+.sub-row:last-child {
+  border-bottom: none;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 1rem;
+  width: 30%;
+}
+
+.delete .header {
+  width: 50%;
+}
+
+.value,
+.name-value {
+  width: 35%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.view-only .header {
+  width: 50%;
+}
+
+.view-only .value,
+.view-only .name-value {
+  width: 50%;
+}
+
+.delete .value {
+  width: 35%;
+}
+
+/* Mini Datum & Mini Table */
+.mini-datum .header,
+.mini-table .header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: row;
+  width: 100%;
+  min-height: 2rem;
+  padding: 0;
+}
+
+.mini-datum .header-text,
+.mini-table .header-text {
+  display: inline-flex;
+  justify-content: flex-end;
+  padding-right: 1rem;
+  width: 30%;
+}
+
+.mini-datum .value,
+.mini-table .value {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0.25rem;
+  border-radius: 1rem;
+  background-color: var(--faded-color);
+}
+
+.view-only .mini-datum .header-text,
+.view-only .mini-table .header-text {
+  width: 50%;
+}
+
+/* Mini Table */
+.mini-table .value {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.value .header-text {
+  width: 60%;
+}
+
+.mini-table .value .sorting-button {
+  color: #fff;
+}
+
+/* Mini Datum */
+.mini-datum {
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-datum.not-active {
+  background-color: var(--faded-color);
+}
+
+.mini-date .name-value {
+  display: flex;
+  flex-direction: row;
+}
+
+.object-name-value,
+.object-activity-button {
+  flex: 0.33;
+}
+
+button.on {
+  background-color: var(--faded-color);
+}
+
+.mini-datum .data-value {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.sub-row .sub-header {
+  padding: 0 0 0 5rem;
+  width: 35%;
+}
+
+.sub-value {
+  flex: 1;
+}
+
+/* Delete */
+.delete {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.delete .datum {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.delete-header {
+  font-size: 1.5rem;
+}
+
+.delete-boolean-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.delete-boolean-button {
+  font-size: 1.5rem;
+  margin: 1rem;
+}
+
+/* Submit Button */
+.submit-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 3rem;
+}
+
+.submit-container .submit-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+/* Search */
+.search {
+  margin-top: 1%;
+}
+
+.search-headers {
+  display: inline-flex;
+  width: 100%;
+}
+
+.search-header {
+  width: inherit;
+  flex: 1;
+}
+
+.search-inputs {
+  width: 100%;
+}
+
+.search-inputs.button {
+  font-size: 1rem;
+}
+
+.search-inputs.box {
+  border: 0.1rem solid var(--main-color);
+  border-radius: 1rem;
+}
+
+.search-buttons {
+  display: inline-flex;
+  width: 100%;
+}
+
+.search-button {
+  flex: 1;
+}
