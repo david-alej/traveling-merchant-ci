@@ -30,8 +30,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Debug list backend contents
-        run: ls -al ./backend && ls -al ./backend/dockerfiles
+      - name: Debuging cookies secrets
+        run: |
+          COOKIES_SECRET=${{ secrets.COOKIES_SECRET }}
+          CSRF_SECRET=${{ secrets.CSRF_SECRET }}
+          CSRF_COOKIE_NAME=${{ secrets.CSRF_COOKIE_NAME }}
 
       - name: Build and Push to Docker
         uses: docker/build-push-action@v6
