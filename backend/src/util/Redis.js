@@ -1,4 +1,4 @@
-const { Api500Error } = require("../util/index").apiErrors
+const { Api500Error } = require("./apiErrors")
 
 const { RateLimiterRedis } = require("rate-limiter-flexible")
 const redis = require("redis")

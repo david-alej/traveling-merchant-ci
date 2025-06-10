@@ -10,7 +10,7 @@ const authenticate = async (username, password) => {
 
   merchant = JSON.parse(JSON.stringify(merchant))
 
-  if (!merchant) return merchant, false
+  if (!merchant) return { merchant, authorized: false }
 
   const authorized = await bcrypt.compare(password, merchant.password)
 

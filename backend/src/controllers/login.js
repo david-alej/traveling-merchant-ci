@@ -1,48 +1,13 @@
 const { validationPerusal } = require("../util/index").validators
 const { generateToken } = require("../util/index").doubleCsrf
 const { authenticate } = require("../util/index").authenticate
-const { Redis } = require("../services/index")
 const { Api401Error, Api429Error } = require("../util/index").apiErrors
-
-const { RateLimiterMemory } = require("rate-limiter-flexible")
-
-const maxWrongAttemptsByIPperDay = 100
-const maxConsecutiveFailsByUsernameAndIP = 10
-
-const oneHour = process.env.NODE_ENV === "production" ? 60 * 60 : 1
-const oneDay = process.env.NODE_ENV === "production" ? 60 * 60 * 24 : 1
-const ninetyDays = process.env.NODE_ENV === "production" ? 60 * 60 * 24 * 90 : 1
-
-const bruteRateLimiterMemory = new RateLimiterMemory({
-  points: 60,
-  duration: oneDay,
-})
-
-const limiterSlowBruteByIP = Redis.createRateLimiter({
-  useRedisPackage: true,
-  keyPrefix: "login_fail_ip_per_day",
-  points: maxWrongAttemptsByIPperDay,
-  duration: oneDay,
-  blockDuration: oneDay,
-  inMemoryBlockOnConsumed: maxWrongAttemptsByIPperDay + 1,
-  inMemoryBlockDuration: oneDay,
-  insuranceLimiter: bruteRateLimiterMemory,
-})
-
-const consecutiveRateLimiterMemory = new RateLimiterMemory({
-  points: 60,
-  duration: oneDay * 23,
-})
-
-const limiterConsecutiveFailsByUsernameAndIP = Redis.createRateLimiter({
-  keyPrefix: "login_fail_consecutive_username_and_ip",
-  points: maxConsecutiveFailsByUsernameAndIP,
-  duration: ninetyDays,
-  blockDuration: oneHour,
-  inMemoryBlockOnConsumed: maxConsecutiveFailsByUsernameAndIP + 1,
-  inMemoryBlockDuration: oneHour,
-  insuranceLimiter: consecutiveRateLimiterMemory,
-})
+const {
+  getSlowBruteLimiter,
+  getConsecutveFailsLimiter,
+  maxWrongAttemptsByIPperDay,
+  maxConsecutiveFailsByUsernameAndIP,
+} = require("../util/index").rateLimiters
 
 const getUsernameIPkey = (username, ip) => `${username}_${ip}`
 
@@ -55,8 +20,8 @@ exports.postLogin = async (req, res, next) => {
   try {
     validationPerusal(req)
 
-    const consecutveFailsLimiter = await limiterConsecutiveFailsByUsernameAndIP
-    const slowBruteLimiter = await limiterSlowBruteByIP
+    const consecutveFailsLimiter = await getConsecutveFailsLimiter()
+    const slowBruteLimiter = await getSlowBruteLimiter()
 
     const [resUsernameAndIP, resSlowByIP] = await Promise.all([
       consecutveFailsLimiter.get(usernameIPkey),

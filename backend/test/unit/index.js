@@ -1,2 +1,1 @@
-require("./login")
 require("./parseInputs")

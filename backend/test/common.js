@@ -1,6 +1,6 @@
 /* eslint-disable node/no-unpublished-require */
 const { initializeWebServer, stopWebServer } = require("../src/index")
-const { httpStatusCodes } = require("../src/util/index")
+const httpStatusCodes = require("../src/util/httpStatusCodes")
 const models = require("../src/database/models")
 
 const { wrapper } = require("axios-cookiejar-support")
