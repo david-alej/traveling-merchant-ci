@@ -1,5 +1,4 @@
 const {
-  stopWebServer,
   expect,
   httpStatusCodes,
   preMerchantMsg,
@@ -63,10 +62,6 @@ describe("Works Routes", function () {
     expect(status).to.equal(OK)
 
     client = axiosClient
-  })
-
-  after(async function () {
-    await stopWebServer()
   })
 
   describe("Get /:workId", function () {

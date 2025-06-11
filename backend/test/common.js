@@ -80,19 +80,14 @@ const axiosConfig = {
   withCredentials: true,
 }
 
-const initializeClient = async () => {
+let client = null
+
+const startClient = async () => {
   const jar = new CookieJar()
   let port = process.env.PORT || 3000
-  let host = process.env.CI_BACKEND
+  let host = process.env.CI_BACKEND || "localhost"
 
-  if (!host) {
-    const apiConnection = await initializeWebServer()
-
-    port = apiConnection.port
-    host = "localhost"
-  }
-
-  const client = wrapper(
+  client = wrapper(
     axios.create({
       baseURL: `http://${host}:${port}`,
       validateStatus: () => true,
@@ -124,6 +119,14 @@ const initializeClient = async () => {
     return response
   })
 
+  return client
+}
+
+const initializeClient = async () => {
+  if (!client) {
+    client = await startClient()
+  }
+
   const { status } = await client.post("/login", merchantCredentials)
 
   return { axiosClient: client, status }
@@ -133,6 +136,7 @@ module.exports = {
   axios,
   axiosConfig,
   initializeWebServer,
+  startClient,
   initializeClient,
   stopWebServer,
   expect,

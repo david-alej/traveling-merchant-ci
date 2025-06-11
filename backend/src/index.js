@@ -8,9 +8,9 @@ const initializeWebServer = () => {
   return new Promise((resolve) => {
     let PORT = process.env.PORT || 3000
 
-    if (process.env.NODE_ENV === "test" && !process.env.CI_BACKEND) {
-      PORT = 0
-    }
+    // if (process.env.NODE_ENV === "test" && !process.env.CI_BACKEND) {
+    //   PORT = 0
+    // }
 
     server = app.listen(PORT, () => {
       const address = server.address()
@@ -31,6 +31,8 @@ const stopWebServer = () => {
   })
 }
 
-if (process.env.NODE_ENV !== "test") initializeWebServer()
+if (!process.env.CI_BACKEND) {
+  initializeWebServer()
+}
 
 module.exports = { initializeWebServer, stopWebServer }

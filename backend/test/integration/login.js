@@ -1,14 +1,11 @@
 const {
-  axios,
-  axiosConfig,
-  initializeWebServer,
-  stopWebServer,
   expect,
   httpStatusCodes,
   preMerchantMsg,
   merchantCredentials,
   fakerUsername,
   fakerPassword,
+  startClient,
 } = require("../common")
 
 const { OK, UNAUTHORIZED } = httpStatusCodes
@@ -19,17 +16,7 @@ describe("Login routes", function () {
   let client
 
   before(async function () {
-    const apiConnection = await initializeWebServer()
-
-    const currentAxiosConfig = { ...axiosConfig }
-
-    currentAxiosConfig.baseURL += apiConnection.port
-
-    client = axios.create(currentAxiosConfig)
-  })
-
-  after(async function () {
-    await stopWebServer()
+    client = await startClient()
   })
 
   describe("Post /", function () {

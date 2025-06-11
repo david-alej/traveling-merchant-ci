@@ -79,7 +79,7 @@ exports.putMerchant = async (req, res, next) => {
       updatedValues.password = hashedNewPassword
     }
 
-    const updated = await models.Merchant.update(updatedValues, {
+    const [updated] = await models.Merchant.update(updatedValues, {
       where: { id: merchant.id },
     })
 

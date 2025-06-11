@@ -1,7 +1,7 @@
+const { stopWebServer } = require("./common")
+
 describe("Ending tests", function () {
-  describe("Title", function () {
-    it("Checking ", async function () {
-      //
-    })
+  before(async function () {
+    await stopWebServer()
   })
 })

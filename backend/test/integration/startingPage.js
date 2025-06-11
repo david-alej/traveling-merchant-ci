@@ -1,9 +1,4 @@
-const {
-  expect,
-  httpStatusCodes,
-  stopWebServer,
-  initializeClient,
-} = require("../common")
+const { expect, httpStatusCodes, startClient } = require("../common")
 
 const { OK } = httpStatusCodes
 
@@ -11,15 +6,7 @@ describe("Starting page", function () {
   let client
 
   before(async function () {
-    const { axiosClient, status } = await initializeClient()
-
-    expect(status).to.equal(OK)
-
-    client = axiosClient
-  })
-
-  after(async function () {
-    await stopWebServer()
+    client = await startClient()
   })
 
   describe("Get /", function () {

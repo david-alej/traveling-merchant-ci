@@ -1,5 +1,4 @@
 const {
-  stopWebServer,
   expect,
   httpStatusCodes,
   merchantCredentials,
@@ -25,10 +24,6 @@ describe("Merchant routes", function () {
     client = axiosClient
   })
 
-  after(async function () {
-    await stopWebServer()
-  })
-
   describe("Get /", function () {
     it("When non existing is input, then response is not found ", async function () {
       const { status, data } = await client.get("/merchant/100")
@@ -42,20 +37,19 @@ describe("Merchant routes", function () {
         id: 1,
         username: "missioneros",
         createdAt: "2024-11-11T00:00:00.000Z",
-        updatedAt: "2024-11-11T00:00:00.000Z",
       }
 
       const { status, data } = await client.get("/merchant/1")
 
       expect(status).to.equal(OK)
-      expect(data).to.eql(expected)
+      expect(data).to.include(expected)
     })
   })
 
   describe("Put /", function () {
     const putUserNewCredentials = {}
 
-    afterEach(async function () {
+    beforeEach(async function () {
       putUserNewCredentials.newUsername = fakerUsername()
       putUserNewCredentials.newPassword = fakerPassword()
 

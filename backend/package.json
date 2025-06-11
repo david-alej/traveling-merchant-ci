@@ -62,11 +62,11 @@
     "ci-unit-test": "cross-env NODE_ENV=test mocha ./test/unit/index.js --testTimeout=10000 --exit",
     "ci-integration-test": "cross-env NODE_ENV=test mocha ./test/integration/index.js --testTimeout=10000 --exit",
     "pretest": "cross-env NODE_ENV=test npm run seed:migrate:reset",
-    "test": "cross-env NODE_ENV=test mocha ./test/main.js --testTimeout=10000 --exit",
+    "test": "cross-env NODE_ENV=test SELF_TESTING=true mocha ./test/main.js --testTimeout=10000 --exit",
     "raw-test": "cross-env NODE_ENV=test mocha ./test/main.js --testTimeout=10000 --exit",
     "mutate": "npm run pretest && cross-env NODE_ENV=test npx stryker run",
     "debug-docker": "nodemon --inspect=0.0.0.0:9229 ./src/index.js",
-    "dev": "nodemon src/index.js",
+    "dev": "cross-env CI_BACKEND= nodemon src/index.js",
     "start": "node src/index.js"
   },
   "author": "David Alejandro",
