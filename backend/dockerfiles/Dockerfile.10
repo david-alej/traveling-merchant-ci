@@ -15,6 +15,9 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
   npm set cache /usr/src/app/.npm && \
   npm install
 
+RUN apt-get update && \
+    apt-get install -y curl
+
 COPY ./src/ ./src/
 COPY ./test/ ./test/
 
