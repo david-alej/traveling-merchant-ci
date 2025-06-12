@@ -19,7 +19,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            sidpalas/devops-directive-docker-course-api-node
+            davidalej/tm-frontend-ci
           tags: |
             type=raw,value=latest
             type=ref,event=branch

@@ -30,10 +30,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Debuging cookies secrets
-        run: |
-          echo "COOKIES_SECRET=${{ secrets.COOKIES_SECRET }} CSRF_SECRET=${{ secrets.CSRF_SECRET }} CSRF_COOKIE_NAME=${{ secrets.CSRF_COOKIE_NAME }}"
-
       - name: Build and Push to Docker
         uses: docker/build-push-action@v6
         with:
@@ -41,14 +37,10 @@ jobs:
           context: ./backend
           push: true
           tags: davidalej/tm-backend-ci:${{ github.run_id }}
-          target: dev
+          target: test
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
-          secrets: |
-            cookies_secret=${{ secrets.COOKIES_SECRET }}
-            csrf_secret=${{ secrets.CSRF_SECRET }}
-            csrf_cookie_name=${{ secrets.CSRF_COOKIE_NAME }}
 
   # NEXT JOB #######################################################################
   test-unit:
@@ -174,7 +166,7 @@ jobs:
       # - name: Run Trivy for HIGH,CRITICAL CVEs and report (blocking)
       #   uses: aquasecurity/trivy-action@master
       #   with:
-      #     image-ref: ghcr.io/bretfisher/tm-backend-ci:${{ github.run_id }}
+      #     image-ref: ghcr.io/davidalej/tm-backend-ci:${{ github.run_id }}
       #     exit-code: 1
       #     ignore-unfixed: true
       #     vuln-type: 'os,library'
@@ -216,7 +208,7 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@v5
         with:
-          images: bretfisher/tm-backend-ci
+          images: davidalej/tm-backend-ci
           flavor: |
             latest=false
           tags: |
@@ -230,9 +222,12 @@ jobs:
       - name: Docker Build and Push to Docker Hub
         uses: docker/build-push-action@v6
         with:
+          file: ./backend/dockerfiles/Dockerfile.10
+          context: ./backend
           push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
+          target: production
           cache-from: type=gha
           cache-to: type=gha,mode=max
           # comma seperated list of what OS and architechtures to build for (in parallel)
