@@ -1,6 +1,10 @@
 services:
   backend:
     image: "${TESTING_IMAGE}"
+    environment:
+      - COOKIES_SECRET
+      - CSRF_SECRET
+      - CSRF_COOKIE_NAME
     init: true
     depends_on:
       db:
@@ -36,7 +40,7 @@ services:
     expose:
       - "6379"
     restart: unless-stopped
-  sut: # System under test: waits until test image is ready to run test commands to make request to backend container.
+  sut: # System under test: waits until backend container is ready so that sut can run its tests which make requests to backend
     image: "${TESTING_IMAGE}"
     depends_on:
       backend:
