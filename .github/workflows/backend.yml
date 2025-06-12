@@ -128,7 +128,7 @@ jobs:
           export TESTING_IMAGE=davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
           envsubst < manifests/deployment.yml  | kubectl apply -f -
           kubectl rollout status deployment myapp
-          kubectl exec deploy/myapp -- curl --fail localhost
+          kubectl exec deploy/myapp -- curl --fail localhost:3000
 
   # NEXT JOB .github/workflows/backend.yml#######################################################################
   scan-image:

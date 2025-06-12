@@ -5,6 +5,7 @@ services:
       - COOKIES_SECRET
       - CSRF_SECRET
       - CSRF_COOKIE_NAME
+      - REDIS_HOST=my-redis
     init: true
     depends_on:
       db:
