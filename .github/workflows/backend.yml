@@ -133,7 +133,7 @@ jobs:
           kubectl apply -f manifests/my-redis.yml
           kubectl apply -f manifests/db.yml
           envsubst < manifests/migrations.yml  | kubectl apply -f -
-          kubectl wait --for=condition=complete job/run-migrations
+          kubectl wait --for=condition=complete job/run-migrations --timeout=120s
           envsubst < manifests/backend.yml  | kubectl apply -f -
           kubectl rollout status deployment myapp
           kubectl exec deploy/myapp -- curl --fail localhost:3000

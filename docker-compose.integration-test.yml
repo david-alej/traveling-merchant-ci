@@ -9,7 +9,7 @@ services:
     init: true
     depends_on:
       migrations:
-        condition: service_healthy
+        condition: service_started
       my-redis:
         condition: service_healthy
     entrypoint: ["/usr/src/app/wait-migrations.sh"]
