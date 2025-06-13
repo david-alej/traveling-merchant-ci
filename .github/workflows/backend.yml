@@ -138,6 +138,19 @@ jobs:
           kubectl rollout status deployment myapp
           kubectl exec deploy/myapp -- curl --fail localhost:3000
 
+      - name: Debug all job/pod logs on failure
+        if: failure()
+        run: |
+          echo "==== Jobs ===="
+          kubectl get jobs -A
+          echo "==== Pods ===="
+          kubectl get pods -A -o wide
+          echo "==== All pod logs ===="
+          for pod in $(kubectl get pods -o name); do
+            echo "---- Logs from $pod ----"
+            kubectl logs "$pod" || true
+          done
+
   # NEXT JOB .github/workflows/backend.yml#######################################################################
   scan-image:
     name: Scan Image with Trivy
