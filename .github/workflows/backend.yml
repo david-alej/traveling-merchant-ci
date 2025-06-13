@@ -125,8 +125,15 @@ jobs:
           kubectl create secret docker-registry regcred \
             --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
             --docker-password=${{ secrets.DOCKERHUB_TOKEN }}
+          kubectl create secret generic app-secrets \
+            --from-literal=COOKIES_SECRET=${{ secrets.COOKIES_SECRET }} \
+            --from-literal=CSRF_SECRET=${{ secrets.CSRF_SECRET }} \
+            --from-literal=CSRF_COOKIE_NAME=${{ secrets.CSRF_COOKIE_NAME }}
           export TESTING_IMAGE=davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
-          envsubst < manifests/deployment.yml  | kubectl apply -f -
+          kubectl apply -f manifests/my-redis.yml
+          kubectl apply -f manifests/db.yml
+          envsubst < manifests/migration.yml  | kubectl apply -f -
+          envsubst < manifests/backend.yml  | kubectl apply -f -
           kubectl rollout status deployment myapp
           kubectl exec deploy/myapp -- curl --fail localhost:3000
 

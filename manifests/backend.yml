@@ -1,0 +1,39 @@
+# kubernetes deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      initContainers:
+        - name: wait-for-postgres
+          image: curlimages/curl:latest
+          command: ["sh", "-c", "curl postgres:5432"]
+        - name: wait-for-redis
+          image: curlimages/curl:latest
+          command: ["sh", "-c", "curl my-redis:6379"]
+      containers:
+        - name: backend
+          image: "${TESTING_IMAGE}"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+              name: app-secrets
+          env:
+            - name: REDIS_HOST
+              value: "my-redis"
+          ports:
+            - containerPort: 3000

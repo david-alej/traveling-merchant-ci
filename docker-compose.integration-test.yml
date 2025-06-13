@@ -20,8 +20,6 @@ services:
       db:
         condition: service_healthy
     command: ["sh", "-c", "npm run seed:migrate:reset"]
-    networks:
-      - backend
     restart: "no"
   db:
     image: postgres:15.1-alpine

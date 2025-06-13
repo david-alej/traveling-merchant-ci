@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: run-migrations
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-postgres
+          image: curlimages/curl:latest
+          command: ["sh", "-c", "curl postgres:5432"]
+        - name: wait-for-redis
+          image: curlimages/curl:latest
+          command: ["sh", "-c", "curl my-redis:6379"]
+      containers:
+        - name: migrator
+          image: "${TESTING_IMAGE}"
+          command: command: ["sh", "-c", "npm run seed:migrate:reset"]
