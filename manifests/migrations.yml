@@ -10,9 +10,6 @@ spec:
         - name: wait-for-postgres
           image: curlimages/curl:latest
           command: ["sh", "-c", "curl postgres:5432"]
-        - name: wait-for-redis
-          image: curlimages/curl:latest
-          command: ["sh", "-c", "curl my-redis:6379"]
       containers:
         - name: migrator
           image: "${TESTING_IMAGE}"

@@ -8,13 +8,14 @@ services:
       - REDIS_HOST=my-redis
     init: true
     depends_on:
-      db:
+      migrations:
         condition: service_healthy
       my-redis:
         condition: service_healthy
+    entrypoint: ["/usr/src/app/wait-migrations.sh"]
     expose:
       - "3000"
-  migrate:
+  migrations:
     image: "${TESTING_IMAGE}"
     depends_on:
       db:

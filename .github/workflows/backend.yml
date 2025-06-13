@@ -132,7 +132,8 @@ jobs:
           export TESTING_IMAGE=davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
           kubectl apply -f manifests/my-redis.yml
           kubectl apply -f manifests/db.yml
-          envsubst < manifests/migration.yml  | kubectl apply -f -
+          envsubst < manifests/migrations.yml  | kubectl apply -f -
+          kubectl wait --for=condition=complete job/run-migrations
           envsubst < manifests/backend.yml  | kubectl apply -f -
           kubectl rollout status deployment myapp
           kubectl exec deploy/myapp -- curl --fail localhost:3000
