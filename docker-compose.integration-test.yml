@@ -12,7 +12,7 @@ services:
         condition: service_started
       my-redis:
         condition: service_healthy
-    entrypoint: ["/usr/src/app/dockerfiles/wait-migrations.sh"]
+    entrypoint: ["/usr/src/app/src/dockerfiles/wait-migrations.sh"]
     expose:
       - "3000"
   migrations:
