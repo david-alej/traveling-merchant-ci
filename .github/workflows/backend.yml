@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     env:
-      TESTING_IMAGE: davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
+      TESTING_IMAGE: davidalej/tm-backend-ci:${{ github.run_id }}
       COOKIES_SECRET: ${{ secrets.COOKIES_SECRET }}
       CSRF_SECRET: ${{ secrets.CSRF_SECRET }}
       CSRF_COOKIE_NAME: ${{ secrets.CSRF_COOKIE_NAME }}
@@ -88,7 +88,6 @@ jobs:
 
       - name: Run integration tests with Docker Compose
         run: |
-          echo Testing image: "$TESTING_IMAGE"
           docker compose -f docker-compose.integration-test.yml \
             up --build --exit-code-from sut
 
@@ -130,11 +129,11 @@ jobs:
             --from-literal=CSRF_SECRET=${{ secrets.CSRF_SECRET }} \
             --from-literal=CSRF_COOKIE_NAME=${{ secrets.CSRF_COOKIE_NAME }}
           export TESTING_IMAGE=davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
-          kubectl apply -f manifests/my-redis.yml
-          kubectl apply -f manifests/db.yml
-          envsubst < manifests/migrations.yml  | kubectl apply -f -
+          kubectl apply -f manifests/01-db.yml
+          kubectl apply -f manifests/02-my-redis.yml
+          envsubst < manifests/03-migrations.yml  | kubectl apply -f -
           kubectl wait --for=condition=complete job/run-migrations
-          envsubst < manifests/backend.yml  | kubectl apply -f -
+          envsubst < manifests/04-backend.yml  | kubectl apply -f -
           kubectl rollout status deployment myapp
           kubectl exec deploy/myapp -- curl --fail localhost:3000
 
