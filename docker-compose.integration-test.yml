@@ -11,8 +11,8 @@ services:
     image: ${TESTING_IMAGE}
     init: true
     depends_on:
-      migrations:
-        condition: service_completed_successfully
+      db:
+        condition: service_healthy
       my-redis:
         condition: service_healthy
     environment:
@@ -25,15 +25,9 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    command: /bin/sh -c "npm run seed:migrate:reset && npm run dev"
     expose:
       - "3000"
-  migrations:
-    image: ${TESTING_IMAGE}
-    depends_on:
-      db:
-        condition: service_healthy
-    command: ["sh", "-c", "npm run seed:migrate:reset"]
-    restart: "no"
   db:
     image: postgres:15.1-alpine
     volumes:

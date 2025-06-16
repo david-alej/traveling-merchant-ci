@@ -147,3 +147,22 @@ compose-down:
 .PHONY: run-tests
 run-tests:
 	docker compose -f $(DEV_COMPOSE_FILE) -f $(TEST_COMPOSE_FILE) run --build backend
+
+.PHONY: run-ci-integration
+run-ci-integration:
+	docker build -t tm-backend-ci -f backend/dockerfiles/Dockerfile.10 --target test backend/
+	TESTING_IMAGE=tm-backend-ci \
+		COOKIES_SECRET=AwW5XWhJhxfLZUtgzC_LLDhgN6yTaeNGLVXk27m1R53D7K3aBwTkLrDYYZaLe_WB \
+		CSRF_SECRET=2ESeKzkR4QdQ5-SqWWF0RANSaitHUJ8d9YbZUu1lpr0R-cIffCzBKDJHQ7z5KNSd \
+		CSRF_COOKIE_NAME=psifi.x-csrf-token \
+		docker compose -f docker-compose.integration-test.yml \
+		up \
+		--build --exit-code-from sut
+
+.PHONY: stop-ci-integration
+stop-ci-integration:
+	TESTING_IMAGE=tm-backend-ci \
+		COOKIES_SECRET=AwW5XWhJhxfLZUtgzC_LLDhgN6yTaeNGLVXk27m1R53D7K3aBwTkLrDYYZaLe_WB \
+		CSRF_SECRET=2ESeKzkR4QdQ5-SqWWF0RANSaitHUJ8d9YbZUu1lpr0R-cIffCzBKDJHQ7z5KNSd \
+		CSRF_COOKIE_NAME=psifi.x-csrf-token \
+	  docker compose -f docker-compose.integration-test.yml down --remove-orphans

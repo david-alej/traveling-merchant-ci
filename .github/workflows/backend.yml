@@ -68,7 +68,11 @@ jobs:
     needs: [build-test-image]
     runs-on: ubuntu-latest
     environment: test
-
+    env:
+      TESTING_IMAGE: davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
+      COOKIES_SECRET: ${{ secrets.COOKIES_SECRET }}
+      CSRF_SECRET: ${{ secrets.CSRF_SECRET }}
+      CSRF_COOKIE_NAME: ${{ secrets.CSRF_COOKIE_NAME }}
     permissions:
       packages: read
 
@@ -83,14 +87,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Run integration tests with Docker Compose
-        env:
-          COOKIES_SECRET: ${{ secrets.COOKIES_SECRET }}
-          CSRF_SECRET: ${{ secrets.CSRF_SECRET }}
-          CSRF_COOKIE_NAME: ${{ secrets.CSRF_COOKIE_NAME }}
         run: |
-          export TESTING_IMAGE=davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
           echo Testing image: "$TESTING_IMAGE"
-          docker compose -f docker-compose.integration-test.yml up --build --exit-code-from sut
+          docker compose -f docker-compose.integration-test.yml \
+            up --build --exit-code-from sut
 
   # NEXT JOB #######################################################################
   test-k3d:
