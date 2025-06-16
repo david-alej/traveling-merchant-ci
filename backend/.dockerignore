@@ -1,3 +1,4 @@
 node_modules
 dockerfiles
+!dockerfiles/wait-migrations.sh
 .env

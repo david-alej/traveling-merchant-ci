@@ -1,6 +1,6 @@
 services:
   sut: # System under test: waits until backend container is ready so that sut can run its tests which make requests to backend
-    image: ${TESTING_IMAGE}
+    image: tm-backend-ci
     depends_on:
       backend:
         condition: service_healthy
@@ -8,7 +8,7 @@ services:
       CI_BACKEND: backend
     command: npm run ci-integration-test
   backend:
-    image: ${TESTING_IMAGE}
+    image: tm-backend-ci
     init: true
     depends_on:
       migrations:
@@ -16,9 +16,9 @@ services:
       my-redis:
         condition: service_healthy
     environment:
-      COOKIES_SECRET: ${COOKIES_SECRET}
-      CSRF_SECRET: ${CSRF_SECRET}
-      CSRF_COOKIE_NAME: ${CSRF_COOKIE_NAME}
+      COOKIES_SECRET: AwW5XWhJhxfLZUtgzC_LLDhgN6yTaeNGLVXk27m1R53D7K3aBwTkLrDYYZaLe_WB
+      CSRF_SECRET: 2ESeKzkR4QdQ5-SqWWF0RANSaitHUJ8d9YbZUu1lpr0R-cIffCzBKDJHQ7z5KNSd
+      CSRF_COOKIE_NAME: psifi.x-csrf-token
       REDIS_HOST: my-redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/"]
@@ -28,7 +28,11 @@ services:
     expose:
       - "3000"
   migrations:
-    image: ${TESTING_IMAGE}
+    image: tm-backend-ci
+    build:
+      target: test
+      context: ./backend/
+      dockerfile: ./dockerfiles/Dockerfile.10
     depends_on:
       db:
         condition: service_healthy

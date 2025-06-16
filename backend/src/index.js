@@ -1,3 +1,19 @@
+const { logError, isOperationalError } =
+  require("./controllers/index").errorHandlers
+
+process.on("unhandledRejection", (err) => {
+  throw err
+})
+
+process.on("uncaughtException", (err) => {
+  logError(err)
+
+  if (!isOperationalError(err)) {
+    // eslint-disable-next-line no-process-exit
+    process.exit(1)
+  }
+})
+
 const app = require("./server")
 
 require("dotenv").config()
@@ -8,13 +24,12 @@ const initializeWebServer = () => {
   return new Promise((resolve) => {
     let PORT = process.env.PORT || 3000
 
-    // if (process.env.NODE_ENV === "test" && !process.env.CI_BACKEND) {
-    //   PORT = 0
-    // }
-
     server = app.listen(PORT, () => {
       const address = server.address()
 
+      console.log(`Node environment: ${process.env.NODE_ENV}`)
+      console.log("Database url", process.env.TEST_DATABASE_URL)
+      console.log("Redis host", process.env.REDIS_HOST)
       console.log(`Server is listening at port: ${address.port}`)
       console.log("Swagger-ui is available on /api-docs endpoint")
 

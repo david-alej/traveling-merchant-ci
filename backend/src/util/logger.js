@@ -1,6 +1,5 @@
-// uncomment code to transport to Sematext Cloud
-const winston = require("winston")
-// const Logsene = require("winston-logsene")
+const { createLogger, format, config, transports } = require("winston")
+const chalk = require("chalk")
 
 const options = {
   console: {
@@ -9,21 +8,35 @@ const options = {
     json: false,
     colorize: true,
   },
-  // logsene: {
-  //   token: process.env.LOGS_TOKEN,
-  //   level: "debug",
-  //   type: "app_logs",
-  //   url: "https://logsene-receiver.sematext.com/_bulk",
-  // },
 }
 
-const logger = winston.createLogger({
-  levels: winston.config.npm.levels,
-  transports: [
-    new winston.transports.Console(options.console),
-    // new Logsene(options.logsene),
-  ],
+const logger = createLogger({
+  level: "info",
+  format: format.combine(
+    format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    format.printf(({ timestamp, level, message }) => {
+      let color = chalk.white
+
+      if (level === "error") {
+        color = chalk.red
+      } else if (level === "warn") {
+        color = chalk.yellow
+      } else if (level === "info") {
+        color = chalk.green
+      }
+
+      return `${chalk.gray(`[${timestamp}]`)} ${color(level)}: ${message}`
+    })
+  ),
+  levels: config.npm.levels,
+  transports: [new transports.Console(options.console)],
   exitOnError: false,
 })
+
+// const logger = createLogger({
+//   levels: config.npm.levels,
+//   transports: [new transports.Console(options.console)],
+//   exitOnError: false,
+// })
 
 module.exports = logger

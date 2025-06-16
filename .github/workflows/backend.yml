@@ -90,7 +90,7 @@ jobs:
         run: |
           export TESTING_IMAGE=davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
           echo Testing image: "$TESTING_IMAGE"
-          docker compose -f docker-compose.integration-test.yml up --exit-code-from sut
+          docker compose -f docker-compose.integration-test.yml up --build --exit-code-from sut
 
   # NEXT JOB #######################################################################
   test-k3d:
