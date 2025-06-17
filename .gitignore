@@ -4,3 +4,4 @@ notes.txt
 **/dump.rdb
 backend/node_modules
 frontend/node_modules
+github.env
