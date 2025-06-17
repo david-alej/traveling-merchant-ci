@@ -124,7 +124,7 @@ jobs:
           kubectl create secret docker-registry regcred \
             --docker-username=${{ secrets.DOCKERHUB_USERNAME }} \
             --docker-password=${{ secrets.DOCKERHUB_TOKEN }}
-          kubectl create secret generic app-secrets \
+          kubectl create secret generic backend-secrets \
             --from-literal=COOKIES_SECRET=${{ secrets.COOKIES_SECRET }} \
             --from-literal=CSRF_SECRET=${{ secrets.CSRF_SECRET }} \
             --from-literal=CSRF_COOKIE_NAME=${{ secrets.CSRF_COOKIE_NAME }}
@@ -136,7 +136,7 @@ jobs:
           kubectl exec deploy/backend -- curl --fail localhost:3000
 
       - name: Debug all job/pod logs on failure
-        if: failure()
+        if: always()
         run: |
           echo "==== Jobs ===="
           kubectl get jobs -A

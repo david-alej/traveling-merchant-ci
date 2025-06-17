@@ -24,7 +24,7 @@ spec:
           command: ["sh", "-c", "curl my-redis:6379"]
         - name: wait-for-postgres
           image: curlimages/curl:latest
-          command: ["sh", "-c", "curl postgres:5432"]
+          command: ["sh", "-c", "curl db:5432"]
       containers:
         - name: backend
           image: "${TESTING_IMAGE}"
@@ -38,7 +38,7 @@ spec:
           imagePullPolicy: IfNotPresent
           envFrom:
             - secretRef:
-                name: app-secrets
+                name: backend-secrets
           env:
             - name: REDIS_HOST
               value: "my-redis"
