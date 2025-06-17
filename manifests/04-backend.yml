@@ -22,6 +22,9 @@ spec:
         - name: wait-for-redis
           image: curlimages/curl:latest
           command: ["sh", "-c", "curl my-redis:6379"]
+        - name: wait-for-postgres
+          image: curlimages/curl:latest
+          command: ["sh", "-c", "curl postgres:5432"]
       containers:
         - name: backend
           image: "${TESTING_IMAGE}"
