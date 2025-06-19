@@ -1,0 +1,21 @@
+apiVersion: k3d.io/v1alpha3
+kind: Simple
+servers: 1
+agents: 1
+ports:
+  - port: 0.0.0.0:30080:80
+    nodeFilters:
+      - agent:0:direct
+options:
+  k3d:
+    wait: true
+    timeout: 1m0s
+    disableLoadbalancer: true
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik,servicelb,metrics-server
+        nodeFilters:
+          - server:*
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true

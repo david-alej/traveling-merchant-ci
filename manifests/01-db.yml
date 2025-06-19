@@ -57,7 +57,7 @@ spec:
               command:
                 - sh
                 - -c
-                - pg_isready -U test_user -h 127.0.0.1
+                - pg_isready -U test_user -h localhost -d test_db
             initialDelaySeconds: 5
             periodSeconds: 3
           volumeMounts:
@@ -66,4 +66,4 @@ spec:
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
-            claimName: postgres-pvc
+            claimName: db

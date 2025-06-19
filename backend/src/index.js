@@ -27,9 +27,6 @@ const initializeWebServer = () => {
     server = app.listen(PORT, () => {
       const address = server.address()
 
-      console.log(`Node environment: ${process.env.NODE_ENV}`)
-      console.log("Database url", process.env.TEST_DATABASE_URL)
-      console.log("Redis host", process.env.REDIS_HOST)
       console.log(`Server is listening at port: ${address.port}`)
       console.log("Swagger-ui is available on /api-docs endpoint")
 

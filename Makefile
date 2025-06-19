@@ -151,28 +151,102 @@ run-tests:
 
 # CI with Github actions
 
-## Docker compose
+include $(CI_ENVFILE)
+export
+
+CI_IMAGE=davidalej/tm-backend-ci:$(GITHUB_RUN_ID)
+CI_DOCKERFILE=backend/dockerfiles/Dockerfile.10
+CI_COMPOSEFILE=docker-compose.integration-test.yml 
+CI_ENVFILE=ci.env
+
+## nektos/act
+### Testing workflows using nektos/act. Works with simple actions (not k3d action)
+
+.PHONY: run-backend-workflow
+run-backend-workflow:
+	act -W .github/workflows/backend.yml --secret-file $(CI_ENVFILE)
+
+## Push and Build testing image
+
+.PHONY: ci-build
+ci-build: 
+	docker build -t $(CI_IMAGE) \
+		-f ./backend/dockerfiles/Dockerfile.10 \
+		--target test \
+		./backend
+
+.PHONY: ci-push
+ci-push:
+	docker push $(CI_IMAGE)
+
+.PHONY: ci-build-push
+ci-build-push:
+	$(MAKE) ci-build
+	$(MAKE) ci-push
+
+## CI integration tests
 ### Testing ci integration test using docker compose
 
 .PHONY: run-ci-integration
 run-ci-integration:
-	docker build -t tm-backend-ci \
-		-f backend/dockerfiles/Dockerfile.10 \
-		--target test \
-		backend/
-	env $(cat myvars.env | xargs) TESTING_IMAGE=tm-backend-ci \
-		docker compose -f docker-compose.integration-test.yml \
+	$(MAKE) ci-build
+	env $(cat CI_ENVFILE | xargs) TESTING_IMAGE=$(CI_IMAGE) \
+		docker compose -f $(CI_COMPOSEFILE) \
 		up \
 		--build --exit-code-from sut
 
 .PHONY: stop-ci-integration
 stop-ci-integration:
-	env $(cat myvars.env | xargs) TESTING_IMAGE=tm-backend-ci \
-	  docker compose -f docker-compose.integration-test.yml down --remove-orphans
+	env $(cat CI_ENVFILE | xargs) TESTING_IMAGE=$(CI_IMAGE) \
+	  docker compose -f $(CI_COMPOSEFILE) down --remove-orphans
 
-## nektos/act
-### Testing workflows using nektos/act 
+## k3d testing
+### Testing ci k3d cluster using k3d
 
-.PHONY: run-backend-workflow
-run-backend-workflow:
-	act -W .github/workflows/backend.yml --secret-file github.env
+K3D_NAME = test-cluster
+K3D_CONFIG = k3d-config.yml
+K3D_MANIFESTS = manifests
+
+.PHONY: create-k3d
+create-k3d:
+	k3d cluster create $(K3D_NAME) --config $(K3D_CONFIG)
+
+.PHONY: sercets-k3d
+secrets-k3d:
+	kubectl create secret docker-registry regcred \
+		--docker-username=$(DOCKERHUB_USERNAME) \
+		--docker-password=$(DOCKERHUB_TOKEN) && \
+	kubectl create secret generic backend-secrets \
+		--from-literal=COOKIES_SECRET=$(COOKIES_SECRET) \
+		--from-literal=CSRF_SECRET=$(CSRF_SECRET) \
+		--from-literal=CSRF_COOKIE_NAME=$(CSRF_COOKIE_NAME)
+
+.PHONY: add-k3d
+add-k3d:
+	kubectl apply -f manifests/01-db.yml
+	kubectl apply -f manifests/02-my-redis.yml
+	export TESTING_IMAGE=$(CI_IMAGE) && \
+		envsubst < manifests/03-backend.yml  | kubectl apply -f -
+
+.PHONY: log-k3d
+log-k3d:
+	@echo "==== Jobs ====" && \
+		kubectl get jobs -A && \
+		echo "==== Pods ====" && \
+		kubectl get pods -A -o wide && \
+		echo "==== All pod logs ====" && \
+		for pod in $$(kubectl get pods -o name); do \
+			echo "---- Logs from $$pod ----"; \
+			kubectl logs "$$pod" || true; \
+		done
+
+.PHONY: test-k3d
+test-k3d:
+	$(MAKE) create-k3d
+	$(MAKE) secrets-k3d
+	$(MAKE) add-k3d
+	kubectl rollout status deployment backend
+
+.PHONY: delete-k3d
+delete-k3d:
+	k3d cluster delete $(K3D_NAME)

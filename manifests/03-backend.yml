@@ -20,11 +20,18 @@ spec:
         - name: regcred
       initContainers:
         - name: wait-for-redis
-          image: curlimages/curl:latest
-          command: ["sh", "-c", "curl my-redis:6379"]
+          image: redis:7.2
+          command:
+            - sh
+            - -c
+            - redis-cli -h my-redis ping
+
         - name: wait-for-postgres
-          image: curlimages/curl:latest
-          command: ["sh", "-c", "curl db:5432"]
+          image: postgres:15
+          command:
+            - sh
+            - -c
+            - pg_isready -h db -U test_user -d test_db
       containers:
         - name: backend
           image: "${TESTING_IMAGE}"
@@ -44,3 +51,10 @@ spec:
               value: "my-redis"
           ports:
             - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 2
+            periodSeconds: 3
+            failureThreshold: 5

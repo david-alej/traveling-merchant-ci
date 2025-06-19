@@ -36,7 +36,7 @@ jobs:
           file: ./backend/dockerfiles/Dockerfile.10
           context: ./backend
           push: true
-          tags: davidalej/tm-backend-ci:${{ github.run_id || secrets.RUN_ID}}
+          tags: davidalej/tm-backend-ci:${{ github.run_id || secrets.GITHUB_RUN_ID}}
           target: test
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     env:
-      TESTING_IMAGE: davidalej/tm-backend-ci:${{ github.run_id || secrets.RUN_ID }}
+      TESTING_IMAGE: davidalej/tm-backend-ci:${{ github.run_id || secrets.GITHUB_RUN_ID }}
       COOKIES_SECRET: ${{ secrets.COOKIES_SECRET }}
       CSRF_SECRET: ${{ secrets.CSRF_SECRET }}
       CSRF_COOKIE_NAME: ${{ secrets.CSRF_COOKIE_NAME }}
@@ -113,7 +113,7 @@ jobs:
 
       - uses: AbsaOSS/k3d-action@v2
         with:
-          cluster-name: "test-cluster-1"
+          cluster-name: "test-cluster"
           args: >-
             --agents 1
             --no-lb
@@ -128,12 +128,11 @@ jobs:
             --from-literal=COOKIES_SECRET=${{ secrets.COOKIES_SECRET }} \
             --from-literal=CSRF_SECRET=${{ secrets.CSRF_SECRET }} \
             --from-literal=CSRF_COOKIE_NAME=${{ secrets.CSRF_COOKIE_NAME }}
-          export TESTING_IMAGE=davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
           kubectl apply -f manifests/01-db.yml
           kubectl apply -f manifests/02-my-redis.yml
-          envsubst < manifests/04-backend.yml  | kubectl apply -f -
+          export TESTING_IMAGE=davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
+          envsubst < manifests/03-backend.yml  | kubectl apply -f -
           kubectl rollout status deployment backend
-          kubectl exec deploy/backend -- curl --fail localhost:3000
 
       - name: Debug all job/pod logs on failure
         if: always()
@@ -173,30 +172,30 @@ jobs:
       - name: Pull image to scan
         run: docker pull davidalej/tm-backend-ci:"$GITHUB_RUN_ID"
 
-      - name: Run Trivy for all CVEs (non-blocking)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: davidalej/tm-backend-ci:${{ github.run_id || secrets.RUN_ID }}
-          format: table
-          exit-code: 0
-
-      # NOTE: disabled to avoid running twice and overwriting 07-add-cve-scanning-adv.yaml
-      # - name: Run Trivy for HIGH,CRITICAL CVEs and report (blocking)
+      # - name: Run Trivy for all CVEs (non-blocking)
       #   uses: aquasecurity/trivy-action@master
       #   with:
-      #     image-ref: ghcr.io/davidalej/tm-backend-ci:${{ github.run_id }}
-      #     exit-code: 1
-      #     ignore-unfixed: true
-      #     vuln-type: 'os,library'
-      #     severity: 'HIGH,CRITICAL'
-      #     format: 'sarif'
-      #     output: 'trivy-results.sarif'
+      #     image-ref: davidalej/tm-backend-ci:${{ github.run_id || secrets.GITHUB_RUN_ID }}
+      #     format: table
+      #     exit-code: 0
 
-      # - name: Upload Trivy scan results to GitHub Security tab
-      #   uses: github/codeql-action/upload-sarif@v1
-      #   if: always()
-      #   with:
-      #     sarif_file: 'trivy-results.sarif'
+      # NOTE: disabled to avoid running twice and overwriting 07-add-cve-scanning-adv.yaml
+      - name: Run Trivy for HIGH,CRITICAL CVEs and report (blocking)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: davidalej/tm-backend-ci:${{ github.run_id || secrets.GITHUB_RUN_ID }}
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "HIGH,CRITICAL"
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
 
   # NEXT JOB #######################################################################
   build-final-image:
@@ -229,13 +228,13 @@ jobs:
           images: davidalej/tm-backend-ci
           flavor: |
             latest=false
+          # comment these out on all but 04-add-metadata.yaml to avoid overwriting image tags
           tags: |
             type=raw,value=99
-          # comment these out on all but 04-add-metadata.yaml to avoid overwriting image tags
-          # type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
-          # type=ref,event=pr
-          # type=ref,event=branch
-          # type=semver,pattern={{version}}
+            type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
+            type=ref,event=pr
+            type=ref,event=branch
+            type=semver,pattern={{version}}
 
       - name: Docker Build and Push to Docker Hub
         uses: docker/build-push-action@v6
