@@ -3,9 +3,8 @@ name: Frontend Jobs by Devops Directive
 on:
   push:
     branches:
-      - "github-action"
-    tags:
-      - "v*"
+      - "main"
+  pull_request:
 
 jobs:
   build-tag-push:
