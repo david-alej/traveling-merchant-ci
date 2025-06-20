@@ -5,3 +5,5 @@ notes.txt
 backend/node_modules
 frontend/node_modules
 ci.env
+backend-changes.txt
+trivy-results.sarif

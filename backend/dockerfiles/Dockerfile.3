@@ -14,6 +14,6 @@ RUN npm install
 
 # Copy remaining source code AFTER installing dependencies. 
 # Again, copy only the necessary files
-COPY ./src/ .
+COPY ./src/ ./src/
 
 CMD [ "node", "index.js" ]

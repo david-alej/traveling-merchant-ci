@@ -32,7 +32,7 @@ run-db:
 
 ## Backend
 
-DATABASE_URL:=postgres://merchant:foobarbaz@db:5432/db
+DATABASE_URL=postgres://merchant:foobarbaz@db:5432/db
 
 .PHONY: build-backend
 build-backend:
@@ -53,7 +53,7 @@ run-backend:
 
 .PHONY: start-backend
 start-backend:
-	@echo "Deliting backend"
+	@echo "Deleting backend"
 	$(MAKE) del-tm-backend
 	@echo "Building and running backend container"
 	$(MAKE) build-backend
@@ -150,23 +150,34 @@ run-tests:
 
 
 # CI with Github actions
+### This is testing backend workflow only locally.
+
+CI_ENVFILE=ci.env
+CI_DOCKERFILE=backend/dockerfiles/Dockerfile.10
+CI_COMPOSEFILE=docker-compose.integration-test.yml
 
 include $(CI_ENVFILE)
 export
 
 CI_IMAGE=davidalej/tm-backend-ci:$(GITHUB_RUN_ID)
-CI_DOCKERFILE=backend/dockerfiles/Dockerfile.10
-CI_COMPOSEFILE=docker-compose.integration-test.yml 
-CI_ENVFILE=ci.env
 
-## nektos/act
-### Testing workflows using nektos/act. Works with simple actions (not k3d action)
+## nektos/act jobs
+### Testing workflows using nektos/act. Works with simple actions (not k3d action or Trivy scans upload). Trivy scans upload need github token i.e. github personal access toekn
 
-.PHONY: run-backend-workflow
-run-backend-workflow:
-	act -W .github/workflows/backend.yml --secret-file $(CI_ENVFILE)
+.PHONY: act-integration
+act-integration:
+	act -j test-integration --secret-file $(CI_ENVFILE)
 
-## Push and Build testing image
+.PHONY: act-unit
+act-unit:
+	act -j test-unit --secret-file $(CI_ENVFILE)
+
+.PHONY: act-scan
+act-scan:
+	act -j scan-image --secret-file $(CI_ENVFILE)
+
+
+## Docker Push and Build Testing Image
 
 .PHONY: ci-build
 ci-build: 
@@ -184,7 +195,7 @@ ci-build-push:
 	$(MAKE) ci-build
 	$(MAKE) ci-push
 
-## CI integration tests
+## Docker Compose CI Integration Tests
 ### Testing ci integration test using docker compose
 
 .PHONY: run-ci-integration
@@ -204,15 +215,15 @@ stop-ci-integration:
 ### Testing ci k3d cluster using k3d
 
 K3D_NAME = test-cluster
-K3D_CONFIG = k3d-config.yml
 K3D_MANIFESTS = manifests
+K3D_CONFIG = $(K3D_MANIFESTS)/k3d-config.yml
 
-.PHONY: create-k3d
-create-k3d:
+.PHONY: k3d-create
+k3d-create:
 	k3d cluster create $(K3D_NAME) --config $(K3D_CONFIG)
 
-.PHONY: sercets-k3d
-secrets-k3d:
+.PHONY: k3d-sercets
+k3d-secrets:
 	kubectl create secret docker-registry regcred \
 		--docker-username=$(DOCKERHUB_USERNAME) \
 		--docker-password=$(DOCKERHUB_TOKEN) && \
@@ -221,15 +232,15 @@ secrets-k3d:
 		--from-literal=CSRF_SECRET=$(CSRF_SECRET) \
 		--from-literal=CSRF_COOKIE_NAME=$(CSRF_COOKIE_NAME)
 
-.PHONY: add-k3d
-add-k3d:
+.PHONY: k3d-add
+k3d-add:
 	kubectl apply -f manifests/01-db.yml
 	kubectl apply -f manifests/02-my-redis.yml
 	export TESTING_IMAGE=$(CI_IMAGE) && \
 		envsubst < manifests/03-backend.yml  | kubectl apply -f -
 
-.PHONY: log-k3d
-log-k3d:
+.PHONY: k3d-log
+k3d-log:
 	@echo "==== Jobs ====" && \
 		kubectl get jobs -A && \
 		echo "==== Pods ====" && \
@@ -240,13 +251,41 @@ log-k3d:
 			kubectl logs "$$pod" || true; \
 		done
 
-.PHONY: test-k3d
-test-k3d:
-	$(MAKE) create-k3d
-	$(MAKE) secrets-k3d
-	$(MAKE) add-k3d
+.PHONY: k3d-test
+k3d-test:
+	$(MAKE) k3d-create
+	$(MAKE) k3d-secrets
+	$(MAKE) k3d-add
 	kubectl rollout status deployment backend
 
-.PHONY: delete-k3d
-delete-k3d:
+.PHONY: k3d-delete
+k3d-delete:
 	k3d cluster delete $(K3D_NAME)
+
+## Trivy Security Scan
+
+.PHONY: trivy-scan
+trivy-scan:
+	docker run --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v "$(GITHUB_WORKSPACE)":/output \
+		aquasec/trivy image \
+		--ignore-unfixed \
+		--severity CRITICAL,HIGH \
+		--exit-code 1 \
+		--format sarif \
+		--output /output/trivy-results.sarif \
+		$(CI_IMAGE)
+
+.PHONY: trivy-log
+trivy-log:
+	less trivy-debug.log
+
+# Frontend CI with Github actions
+
+## nektos/act Workflow
+### Testing workflows using nektos/act.
+
+.PHONY: act-frontend
+act-frontend:
+	act -W '.github/workflows/frontend.yml' --secret-file $(CI_ENVFILE)
