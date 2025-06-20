@@ -149,7 +149,7 @@ run-tests:
 	docker compose -f $(DEV_COMPOSE_FILE) -f $(TEST_COMPOSE_FILE) run --build backend
 
 
-# CI with Github actions
+# Backend CI with Github actions
 ### This is testing backend workflow only locally.
 
 CI_ENVFILE=ci.env

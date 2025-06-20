@@ -1,5 +1,0 @@
-Made following npm run commands:
-  debug-docker
-  ci-unit-test
-  ci-integration-test
-
