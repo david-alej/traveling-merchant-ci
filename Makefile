@@ -163,6 +163,7 @@ CI_IMAGE=davidalej/tm-backend-ci:$(GITHUB_RUN_ID)
 
 ## nektos/act jobs
 ### Testing workflows using nektos/act. Works with simple actions (not k3d action or Trivy scans upload). Trivy scans upload need github token i.e. github personal access toekn
+### WARNING: Running test-k3d will fail so use k3d make script "k3d-test".
 
 .PHONY: act-integration
 act-integration:
@@ -172,9 +173,15 @@ act-integration:
 act-unit:
 	act -j test-unit --secret-file $(CI_ENVFILE)
 
+# Comment out "Upload Trivy scan ..." step to have this job run. The commented out step does not work with act.
 .PHONY: act-scan
 act-scan:
 	act -j scan-image --secret-file $(CI_ENVFILE)
+
+# Comment out needs property on job to just run build final image
+.PHONY: act-final
+act-final:
+	act -j build-final-image --secret-file $(CI_ENVFILE)
 
 
 ## Docker Push and Build Testing Image
@@ -272,8 +279,7 @@ trivy-scan:
 		aquasec/trivy image \
 		--ignore-unfixed \
 		--severity CRITICAL,HIGH \
-		--exit-code 1 \
-		--format sarif \
+		--exit-code 1 \Upload Trivy scan
 		--output /output/trivy-results.sarif \
 		$(CI_IMAGE)
 

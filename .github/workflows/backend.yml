@@ -203,6 +203,9 @@ jobs:
       pull-requests: write # needed to create and update comments in PRs
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -234,10 +237,10 @@ jobs:
         with:
           file: ./backend/dockerfiles/Dockerfile.10
           context: ./backend
+          target: production
           push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
-          target: production
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
